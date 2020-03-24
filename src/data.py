@@ -8,6 +8,8 @@ pygame.init()
 SCREEN_WIDTH = 1100
 SCREEN_HEIGHT = 700
 
+maxPosShip = 10
+
 # IMAGES
 pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 images = {"bg": pygame.image.load("src/assets/bg.png").convert(),
@@ -20,7 +22,8 @@ images = {"bg": pygame.image.load("src/assets/bg.png").convert(),
           "bg_large": pygame.image.load("src/assets/bg_large.png").convert(),
           "start": pygame.image.load("src/assets/start.png").convert_alpha(),
           "highscores": pygame.image.load("src/assets/highscore.png").convert_alpha(),
-          "ready": pygame.image.load("src/assets/ready.png").convert_alpha()
+          "ready": pygame.image.load("src/assets/ready.png").convert_alpha(),
+          "clock": pygame.image.load("src/assets/clock.png").convert_alpha()
           }
 
 spriteShipJump = [pygame.image.load("src/assets/shipJump/1.png").convert_alpha(),
@@ -39,7 +42,8 @@ font = {"bradbunr": "src/assets/BradBunR.ttf"}
 # SOUNDS
 
 sounds = {"music": pygame.mixer.music.load("src/assets/music.mp3"), "crash": pygame.mixer.Sound("src/assets/crash.wav"),
-          "jump": pygame.mixer.Sound("src/assets/jump.wav"), "score": pygame.mixer.Sound("src/assets/score.wav")}
+          "jump": pygame.mixer.Sound("src/assets/jump.wav"), "score": pygame.mixer.Sound("src/assets/score.wav"),
+          "slow": pygame.mixer.Sound("src/assets/slow.wav")}
 
 # COLORS
 colors = {"black": (0, 0, 0), "darkgray": (70, 70, 70), "gray": (128, 128, 128), "lightgray": (200, 200, 200),

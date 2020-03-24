@@ -1,28 +1,34 @@
 from src.data import *
 from random import randint
+from src.game_object import Game_object
 
 
-class Pipes:
+class Pipes(Game_object):
 
-    def __init__(self, screen, screenHeight, screenWidth, screenOverlay, space=300, first=True):
-        self.width = 200
-        self.height = 600
-        self.min_pos = -220
-        self.max_pos = -570
-        self.start_point = screenWidth - self.width
-        self.image = {"up": images["pipe_up"], "down": images["pipe_down"]}
+    origin_space = 300
+    origin_velocity = 7.5
+    max_pos = -570
+    min_pos = -220
+
+    def __init__(self, screen, first=True):
         self.screen = screen
-        self.screenHeight = screenHeight
-        self.screenWidth = screenWidth
-        self.screenOverlay = screenOverlay
-        self.space = space
+        self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
+
+        self.image = {"up": images["pipe_up"], "down": images["pipe_down"]}
+        self.rect = self.image["up"].get_rect()
+        self.width, self.height = self.rect.size
+
+        self.space = self.origin_space
+        self.space_next_pipes = (self.screenWidth / 2) + self.width
+        self.start_point = self.screenWidth - self.width
+
         if first:
             self.x_pos = self.start_point
         else:
-            self.x_pos = self.start_point + SCREEN_WIDTH / 2 + self.width
+            self.x_pos = self.start_point + self.space_next_pipes
         self.y_pos_up = randint(self.max_pos, self.min_pos)
         self.y_pos_down = self.y_pos_up + self.height + self.space
-        self.velocity = 7.5
+        self.velocity = self.origin_velocity
         self.passed = False
 
     def move(self):

@@ -1,19 +1,22 @@
 from src.data import *
+from src.game_object import Game_object
 
 
-class Background:
+class Background(Game_object):
 
-    def __init__(self, screen, screenHeight, screenWidth):
+    offset_y = -50
+    origin_velocity = 0.7
+
+    def __init__(self, screen):
         self.image = images["bg_large"]
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.screen = screen
-        self.screenHeight = screenHeight
-        self.screenWidth = screenWidth
+        self.screenHeight, self.screenWidth = pygame.display.get_surface().get_size()
         self.x_pos1 = 0
         self.x_pos2 = self.x_pos1 + self.width
-        self.y_pos = -50
-        self.velocity = 0.7
+        self.y_pos = self.offset_y
+        self.velocity = self.origin_velocity
 
     def move(self):
         self.x_pos1 -= self.velocity

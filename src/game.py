@@ -2,6 +2,7 @@ from src.data import *
 from src.ship import Ship
 from src.pipes import Pipes
 from src.background import Background
+from src.clock_item import Clock_item
 import lib.pygame_functions as pg_functions
 import pickle
 import os
@@ -10,7 +11,6 @@ import os
 class Game:
     screenW = SCREEN_WIDTH
     screenH = SCREEN_HEIGHT
-    overlay = 50
     pg_functions.screenSize(screenW, screenW)
     end_game = False
     username = None
@@ -69,36 +69,23 @@ class Game:
                     else:
                         self.waitBeforeStart()
 
-    def updateScore(self, ship, pipes, bg):
-        text = pygame.font.Font(font["bradbunr"], 25)
-
-        string = "Score : {}".format(ship.score)
-        textSurface, textRect = self.createTextObj(string, text)
-        self.screen.blit(textSurface, textRect)
-
-        if ship.score > self.all_scores[self.username]:
-            highScore = ship.score
-        else:
-            highScore = self.all_scores[self.username]
-
-        string2 = "Player {0} best score : {1}".format(self.username, highScore)
-        textSurface2, textRect2 = self.createTextObj(string2, text)
-        textRect2.center = (self.screenW - textRect2.width / 2, textRect2.height / 2)
-        self.screen.blit(textSurface2, textRect2)
-
+    def updateScore(self, ship, pipes, bg, clock):
         for pipe in pipes:
             if ship.x_pos > pipe.x_pos and not pipe.passed:
                 ship.score += 1
                 sounds["score"].play()
                 if pipe.velocity < 13:
                     for pipe2 in pipes:
-                        pipe2.velocity += 0.3
+                        pipe2.velocity += 0.5
+                    clock.velocity += 0.5
                 if bg.velocity < 4:
                     bg.velocity += 0.2
 
                 if pipe.space > 230 and ship.score % 5 == 0:
                     pipe.space -= 40
                 pipe.passed = True
+        if ship.score % 9 == 0 and ship.score != 0:
+            clock.appears = True
 
     def getScore(self):
         if os.path.exists(name_score_file):
@@ -110,63 +97,78 @@ class Game:
         return scores
 
     def saveScore(self):
-        # self.all_scores = sorted(self.all_scores.items(), reverse=True, key=operator.itemgetter(1))
-
         with open(name_score_file, 'wb') as file:
             score_obj = pickle.Pickler(file)
             score_obj.dump(self.all_scores)
 
-    def collision(self, ship, pipes):
-        result = False
-        for pipe in pipes:
-            if ship.x_pos + ship.width > pipe.x_pos and ship.x_pos < pipe.x_pos + pipe.width:  # ship between pipes
-                if ship.y_pos < pipe.y_pos_up + pipe.height:  # collide with top
-                    result = True
-                    break
-                elif ship.y_pos + ship.height > pipe.y_pos_down:
-                    result = True
-                    break
-        return result
+    def drawGame(self, game_objects):
+        for object in game_objects.values():
+            object.draw()
 
-    def drawGame(self, ship, pipes, bg):
-        bg.draw()
-        ship.draw()
-        for pipe in pipes:
-            pipe.draw()
-        self.updateScore(ship, pipes, bg)
-        if self.collision(ship, pipes):
-            self.lose(ship)
+        text = pygame.font.Font(font["bradbunr"], 25)
+
+        string = "Score : {}".format(game_objects["ship"].score)
+        textSurface, textRect = self.createTextObj(string, text)
+        self.screen.blit(textSurface, textRect)
+
+        if game_objects["ship"].score > self.all_scores[self.username]:
+            highScore = game_objects["ship"].score
+        else:
+            highScore = self.all_scores[self.username]
+
+        string2 = "Player {0} best score : {1}".format(self.username, highScore)
+        textSurface2, textRect2 = self.createTextObj(string2, text)
+        textRect2.center = (self.screenW - textRect2.width / 2, textRect2.height / 2)
+        self.screen.blit(textSurface2, textRect2)
+
         pygame.display.update()
         self.clock.tick(60)
 
     def startGame(self):
-
         if self.username not in self.all_scores.keys():
             self.all_scores[self.username] = 0
 
-        bg = Background(self.screen, self.screenH, self.screenW)
-        ship = Ship(self.screen, self.screenH, self.overlay)
-        pipes = [Pipes(self.screen, self.screenH, self.screenW, self.overlay, 300, True),
-                 Pipes(self.screen, self.screenH, self.screenW, self.overlay, 300, False)]
+        game_objects = {"bg": Background(self.screen), "ship": Ship(self.screen),
+                        "pipes1": Pipes(self.screen, first=True), "pipes2": Pipes(self.screen, first=False),
+                        "clock": Clock_item(self.screen)}
+
+        # shortcuts for shorter code
+        bg = game_objects["bg"]
+        ship = game_objects["ship"]
+        all_pipes = [game_objects["pipes1"], game_objects["pipes2"]]
+        clock = game_objects["clock"]
+
         while not self.end_game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.end_game = True
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE and ship.y_pos > self.overlay + ship.height:
+                    if event.key == pygame.K_SPACE and ship.y_pos > ship.max_pos_y + ship.height:  # Jump with mouth
                         ship.jump()
-                if pygame.mouse.get_pressed()[0] and ship.y_pos > self.overlay + ship.height:
+                if pygame.mouse.get_pressed()[0] and ship.y_pos > ship.max_pos_y + ship.height:  # Jump with space bar
                     ship.jump()
-            if ship.y_pos + ship.height > self.screenH:
+            if ship.y_pos + ship.height > self.screenH:  # Fall
                 self.lose(ship)
 
             ship.move()
             if not ship.goForward:
                 bg.move()
-                for pipe in pipes:
+                clock.move()
+                for pipe in all_pipes:
                     pipe.move()
 
-            self.drawGame(ship, pipes, bg)
+            self.updateScore(ship, all_pipes, bg, clock)
+            self.drawGame(game_objects)
+            if ship.collision_pipes(all_pipes):
+                self.lose(ship)
+            if clock.appears and ship.collision_clock(clock):
+                sounds["slow"].play()
+                clock.respawn()
+                for pipe in all_pipes :
+                    pipe.velocity = pipe.origin_velocity
+                bg.velocity = bg.origin_velocity
+                clock.velocity = clock.origin_velocity
+
         pygame.quit()
         quit()
 
@@ -222,7 +224,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     startGame = True
-                if event.type == pygame.KEYDOWN :
+                if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         startGame = True
                         self.startGame()
