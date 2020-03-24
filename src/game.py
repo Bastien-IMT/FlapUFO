@@ -85,7 +85,7 @@ class Game:
                     pipe.space -= 40
                 pipe.passed = True
         if ship.score % 9 == 0 and ship.score != 0:
-            clock.appears = True
+            clock.start()
 
     def getScore(self):
         if os.path.exists(name_score_file):

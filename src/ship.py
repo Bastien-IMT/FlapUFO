@@ -70,6 +70,6 @@ class Ship(Game_object):
         if self.x_pos + self.width >= clock.x_pos and self.x_pos < clock.x_pos + clock.width:  # x collapse
             if self.y_pos < clock.y_pos + clock.height and self.y_pos + self.height > clock.y_pos:  # y collapse top ship
                 result = True
-            elif self.y_pos + self.height > clock.y_pos and self.y_pos < clock.y_pos + clock.hight:  # y collapse bottom ship
+            elif self.y_pos + self.height > clock.y_pos and self.y_pos < clock.y_pos + clock.height:  # y collapse bottom ship
                 result = True
         return result

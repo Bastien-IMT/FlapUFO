@@ -30,6 +30,8 @@ class Clock_item(Game_object):
             self.x_pos -= self.velocity
         if self.x_pos == - self.width:
             self.appears = False
+        if self.x_pos < -self.width:
+            self.respawn()
 
     def draw(self):
         if self.appears:
