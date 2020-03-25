@@ -1,11 +1,12 @@
-from src.data import *
-from src.ship import Ship
-from src.pipes import Pipes
+import os
+import pickle
+
+import lib.pygame_functions as pg_functions
 from src.background import Background
 from src.clock_item import Clock_item
-import lib.pygame_functions as pg_functions
-import pickle
-import os
+from src.data import *
+from src.pipes import Pipes
+from src.ship import Ship
 
 
 class Game:
@@ -26,54 +27,108 @@ class Game:
         pygame.display.set_icon(images["icon"])
         pygame.mixer.music.play(-1, 25.3)
 
-    def createTextObj(self, text, font):
-        textSurface = font.render(text, True, colors["white"])
-        return textSurface, textSurface.get_rect()
+    def highScoreMenu(self):
+        sorted_scores = sorted(self.all_scores.items(), key=lambda t: t[1], reverse=True)
 
-    def lose_solo(self, ship):
-        rectBoom = images["boom"].get_rect()
-        rectBoom.center = (self.screenW / 2, 350)
+        first = ["", 0]
+        second = ["", 0]
+        third = ["", 0]
 
-        rectStart_again = images["start_again"].get_rect()
-        rectStart_again.center = (self.screenW/2, 500)
+        if len(sorted_scores) > 0:
+            first = sorted_scores[0]
+        if len(sorted_scores) > 1:
+            second = sorted_scores[1]
+        if len(sorted_scores) > 2:
+            third = sorted_scores[2]
+
+        string1 = "1) {0} : {1} points".format(first[0], first[1])
+        string2 = "2) {0} : {1} points".format(second[0], second[1])
+        string3 = "3) {0} : {1} points".format(third[0], third[1])
+
+        text_font = pygame.font.Font(font["bradbunr"], 75)
+
+        text1, textRect1 = self.createTextObj(string1, text_font)
+        textRect1.center = self.screenW / 2, 250
+
+        text2, textRect2 = self.createTextObj(string2, text_font)
+        textRect2.center = self.screenW / 2, 350
+
+        text3, textRect3 = self.createTextObj(string3, text_font)
+        textRect3.center = self.screenW / 2, 450
 
         rectMenu = images["menu"].get_rect()
         rectMenu.center = (self.screenW / 2, self.screenH - rectMenu.size[1] / 2 - 50)
 
-        rectAlien = images["alien"].get_rect()
-        rectAlien.center = (self.screenW/2, rectAlien.size[1]/2 + 10)
+        rectLogo = images["highscores"].get_rect()
+        rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
 
-        self.screen.blit(images["alien"], rectAlien)
-        self.screen.blit(images["menu"], rectMenu)
-        self.screen.blit(images["boom"], rectBoom)
-        self.screen.blit(images["start_again"], rectStart_again)
-
-        pygame.display.update()
-        sounds["crash"].play()
-
-        if ship.score > self.all_scores[self.username]:
-            self.all_scores[self.username] = ship.score
-            self.saveScore()
-        ship.score = 0
-
-        end_lose = False
-
-        while not end_lose:
+        endMenu = False
+        while not endMenu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
+                    endMenu = True
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     (x, y) = event.pos
                     if rectMenu.collidepoint(x, y):
-                        end_lose = True
+                        endMenu = True
                         self.menu()
-                    else:
-                        self.waitBeforeStart_solo()
-                        end_lose = True
-                if event.type == pygame.KEYDOWN:
-                    self.waitBeforeStart_solo()
-                    end_lose = True
+
+            self.screen.blit(images["bg_large"], (0, -50))
+            self.screen.blit(images["highscores"], rectLogo)
+            self.screen.blit(images["menu"], rectMenu)
+            self.screen.blit(text1, textRect1)
+            self.screen.blit(text2, textRect2)
+            self.screen.blit(text3, textRect3)
+
+            pygame.display.update()
+        pygame.quit()
+        quit()
+
+    def menu(self):
+        self.username = None
+
+        rectLogo = images["logo"].get_rect()
+        rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
+
+        rectSolo = images["start_solo"].get_rect()
+        rectSolo.center = (self.screenW / 2, self.screenW / 2 - 100)
+
+        rect_2_players = images["start_2_players"].get_rect()
+        rect_2_players.center = (self.screenW / 2, self.screenW / 2)
+
+        rectHighscores = images["see_highscore"].get_rect()
+        rectHighscores.center = (self.screenW / 2, self.screenW / 2 + 100)
+
+        endMenu = False
+        while not endMenu:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    endMenu = True
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    (x, y) = event.pos
+                    if rectSolo.collidepoint(x, y):
+                        endMenu = True
+                        self.enterName_solo()
+                    elif rect_2_players.collidepoint(x, y):
+                        endMenu = True
+                        self.enterName_duo()
+                    elif rectHighscores.collidepoint(x, y):
+                        endMenu = True
+                        self.highScoreMenu()
+
+            self.screen.blit(images["bg_large"], (0, -50))
+            self.screen.blit(images["logo"], rectLogo)
+            self.screen.blit(images["start_solo"], rectSolo)
+            self.screen.blit(images["start_2_players"], rect_2_players)
+            self.screen.blit(images["see_highscore"], rectHighscores)
+
+            pygame.display.update()
+        pygame.quit()
+        quit()
+
+    def createTextObj(self, text, font):
+        textSurface = font.render(text, True, colors["white"])
+        return textSurface, textSurface.get_rect()
 
     def updateScore(self, ship, pipes, bg, clock):
         for pipe in pipes:
@@ -178,6 +233,51 @@ class Game:
         pygame.quit()
         quit()
 
+    def lose_solo(self, ship):
+        rectBoom = images["boom"].get_rect()
+        rectBoom.center = (self.screenW / 2, 350)
+
+        rectStart_again = images["start_again"].get_rect()
+        rectStart_again.center = (self.screenW / 2, 500)
+
+        rectMenu = images["menu"].get_rect()
+        rectMenu.center = (self.screenW / 2, self.screenH - rectMenu.size[1] / 2 - 50)
+
+        rectAlien = images["alien"].get_rect()
+        rectAlien.center = (self.screenW / 2, rectAlien.size[1] / 2 + 10)
+
+        self.screen.blit(images["alien"], rectAlien)
+        self.screen.blit(images["menu"], rectMenu)
+        self.screen.blit(images["boom"], rectBoom)
+        self.screen.blit(images["start_again"], rectStart_again)
+
+        pygame.display.update()
+        sounds["crash"].play()
+
+        if ship.score > self.all_scores[self.username]:
+            self.all_scores[self.username] = ship.score
+            self.saveScore()
+        ship.score = 0
+
+        end_lose = False
+
+        while not end_lose:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    (x, y) = event.pos
+                    if rectMenu.collidepoint(x, y):
+                        end_lose = True
+                        self.menu()
+                    else:
+                        self.waitBeforeStart_solo()
+                        end_lose = True
+                if event.type == pygame.KEYDOWN:
+                    self.waitBeforeStart_solo()
+                    end_lose = True
+
     def enterName_solo(self):
         endName = False
 
@@ -214,6 +314,9 @@ class Game:
         textSurface, textRect = self.createTextObj("Use space of left click to jump", text_one)
         textRect.center = 2 * self.screenW / 3, (2 * (self.screenH / 3))
 
+        rectMenu = images["menu"].get_rect()
+        rectMenu.center = (self.screenW / 2, self.screenH - rectMenu.size[1] / 2 - 50)
+
         rectReady = images["ready"].get_rect()
         rectReady.center = (self.screenW / 2, rectReady.height / 2)
 
@@ -223,6 +326,7 @@ class Game:
         self.screen.blit(images["bg_large"], (0, -50))
         self.screen.blit(images["start"], rectStart)
         self.screen.blit(images["ready"], rectReady)
+        self.screen.blit(images["menu"], rectMenu)
         self.screen.blit(textSurface, textRect)
         pygame.display.update()
 
@@ -230,108 +334,23 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     startGame = True
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    (x, y) = event.pos
+                    if rectMenu.collidepoint(x, y):
+                        startGame = True
+                        self.menu()
+                    else:
+                        startGame = True
+                        self.startGame_solo()
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         startGame = True
                         self.startGame_solo()
-                if pygame.mouse.get_pressed()[0]:
-                    startGame = True
-                    self.startGame_solo()
+
         pygame.quit()
         quit()
 
-    def highScoreMenu(self):
-        sorted_scores = sorted(self.all_scores.items(), key=lambda t: t[1], reverse=True)
-
-        first = ["", 0]
-        second = ["", 0]
-        third = ["", 0]
-
-        if len(sorted_scores) > 0:
-            first = sorted_scores[0]
-        if len(sorted_scores) > 1:
-            second = sorted_scores[1]
-        if len(sorted_scores) > 2:
-            third = sorted_scores[2]
-
-        string1 = "1) {0} : {1} points".format(first[0], first[1])
-        string2 = "2) {0} : {1} points".format(second[0], second[1])
-        string3 = "3) {0} : {1} points".format(third[0], third[1])
-
-        text_font = pygame.font.Font(font["bradbunr"], 75)
-
-        text1, textRect1 = self.createTextObj(string1, text_font)
-        textRect1.center = self.screenW / 2, 250
-
-        text2, textRect2 = self.createTextObj(string2, text_font)
-        textRect2.center = self.screenW / 2, 350
-
-        text3, textRect3 = self.createTextObj(string3, text_font)
-        textRect3.center = self.screenW / 2, 450
-
-        rectMenu = images["menu"].get_rect()
-        rectMenu.center = (self.screenW / 2, self.screenH - rectMenu.size[1] / 2 - 50)
-
-        rectLogo = images["highscores"].get_rect()
-        rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
-
-        endMenu = False
-        while not endMenu:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    endMenu = True
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    (x, y) = event.pos
-                    if rectMenu.collidepoint(x, y):
-                        endMenu = True
-                        self.menu()
-
-            self.screen.blit(images["bg_large"], (0, -50))
-            self.screen.blit(images["highscores"], rectLogo)
-            self.screen.blit(images["menu"], rectMenu)
-            self.screen.blit(text1, textRect1)
-            self.screen.blit(text2, textRect2)
-            self.screen.blit(text3, textRect3)
-
-            pygame.display.update()
-        pygame.quit()
-        quit()
-
-    def menu(self):
-        self.username = None
-
-        rectLogo = images["logo"].get_rect()
-        rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
-
-        rectSolo = images["start_solo"].get_rect()
-        rectSolo.center = (self.screenW / 2, self.screenW / 2 - 100)
-
-        rect_2_players = images["start_2_players"].get_rect()
-        rect_2_players.center = (self.screenW / 2, self.screenW / 2)
-
-        rectHighscores = images["see_highscore"].get_rect()
-        rectHighscores.center = (self.screenW / 2, self.screenW / 2 + 100)
-
-        endMenu = False
-        while not endMenu:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    endMenu = True
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    (x, y) = event.pos
-                    if rectSolo.collidepoint(x, y):
-                        endMenu = True
-                        self.enterName_solo()
-                    elif rectHighscores.collidepoint(x, y):
-                        endMenu = True
-                        self.highScoreMenu()
-
-            self.screen.blit(images["bg_large"], (0, -50))
-            self.screen.blit(images["logo"], rectLogo)
-            self.screen.blit(images["start_solo"], rectSolo)
-            self.screen.blit(images["start_2_players"], rect_2_players)
-            self.screen.blit(images["see_highscore"], rectHighscores)
-
-            pygame.display.update()
-        pygame.quit()
-        quit()
+    def enterName_duo(self):
+        pass
