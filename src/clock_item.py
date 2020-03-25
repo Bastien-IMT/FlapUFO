@@ -22,7 +22,7 @@ class Clock_item(Game_object):
         self.start_point = self.screenWidth + self.width + images["pipe_down"].get_rect().size[0]
 
         self.x_pos = self.start_point
-        self.y_pos = self.screenHeight / 2 - self.height  # randint(self.up_pos_max, self.low_pos_max)
+        self.y_pos = randint(self.up_pos_max, self.low_pos_max)
         self.velocity = self.origin_x_velocity
         self.y_velocity = self.origin_y_velocity
         self.appears = False
