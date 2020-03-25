@@ -23,7 +23,13 @@ images = {"bg": pygame.image.load("src/assets/bg.png").convert(),
           "start": pygame.image.load("src/assets/start.png").convert_alpha(),
           "highscores": pygame.image.load("src/assets/highscore.png").convert_alpha(),
           "ready": pygame.image.load("src/assets/ready.png").convert_alpha(),
-          "clock": pygame.image.load("src/assets/clock.png").convert_alpha()
+          "clock": pygame.image.load("src/assets/clock.png").convert_alpha(),
+          "see_highscore": pygame.image.load("src/assets/see_highscores.png").convert_alpha(),
+          "start_solo": pygame.image.load("src/assets/start_solo.png").convert_alpha(),
+          "start_2_players": pygame.image.load("src/assets/start_2_players.png").convert_alpha(),
+          "menu": pygame.image.load("src/assets/menu.png").convert_alpha(),
+          "boom": pygame.image.load("src/assets/boom.png").convert_alpha(),
+          "start_again": pygame.image.load("src/assets/start_again.png").convert_alpha()
           }
 
 spriteShipJump = [pygame.image.load("src/assets/shipJump/1.png").convert_alpha(),
