@@ -14,7 +14,8 @@ class Game:
     screenH = SCREEN_HEIGHT
     pg_functions.screenSize(screenW, screenW)
     end_game = False
-    username = None
+    username1 = None
+    username2 = None
     clock = pygame.time.Clock()
     all_scores = dict()
 
@@ -85,7 +86,8 @@ class Game:
         quit()
 
     def menu(self):
-        self.username = None
+        self.username1 = None
+        self.username2 = None
 
         rectLogo = images["logo"].get_rect()
         rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
@@ -172,12 +174,12 @@ class Game:
         textSurface, textRect = self.createTextObj(string, text)
         self.screen.blit(textSurface, textRect)
 
-        if game_objects["ship"].score > self.all_scores[self.username]:
+        if game_objects["ship"].score > self.all_scores[self.username1]:
             highScore = game_objects["ship"].score
         else:
-            highScore = self.all_scores[self.username]
+            highScore = self.all_scores[self.username1]
 
-        string2 = "Player {0} best score : {1}".format(self.username, highScore)
+        string2 = "Player {0} best score : {1}".format(self.username1, highScore)
         textSurface2, textRect2 = self.createTextObj(string2, text)
         textRect2.center = (self.screenW - textRect2.width / 2, textRect2.height / 2)
         self.screen.blit(textSurface2, textRect2)
@@ -186,8 +188,8 @@ class Game:
         self.clock.tick(60)
 
     def startGame_solo(self):
-        if self.username not in self.all_scores.keys():
-            self.all_scores[self.username] = 0
+        if self.username1 not in self.all_scores.keys():
+            self.all_scores[self.username1] = 0
 
         game_objects = {"bg": Background(self.screen), "ship": Ship(self.screen),
                         "pipes1": Pipes(self.screen, first=True), "pipes2": Pipes(self.screen, first=False),
@@ -254,8 +256,8 @@ class Game:
         pygame.display.update()
         sounds["crash"].play()
 
-        if ship.score > self.all_scores[self.username]:
-            self.all_scores[self.username] = ship.score
+        if ship.score > self.all_scores[self.username1]:
+            self.all_scores[self.username1] = ship.score
             self.saveScore()
         ship.score = 0
 
@@ -299,9 +301,9 @@ class Game:
             self.screen.blit(images["logo"], rectLogo)
             self.screen.blit(textSurface_name, textRect_name)
             pg_functions.showTextBox(wordBox)
-            self.username = pg_functions.textBoxInput(wordBox).upper()
+            self.username1 = pg_functions.textBoxInput(wordBox).upper()
             pygame.display.update()
-            if self.username is not None:
+            if self.username1 is not None:
                 endName = True
                 self.waitBeforeStart_solo()
         pygame.quit()
@@ -353,4 +355,117 @@ class Game:
         quit()
 
     def enterName_duo(self):
+        endName1 = False
+        endName2 = False
+
+        while not (endName1 and endName2):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    endName1 = True
+                    endName2 = True
+
+            text_name = pygame.font.Font(font["bradbunr"], 40)
+            textSurface_name1, textRect_name1 = self.createTextObj("Player 1 name", text_name)
+            textRect_name1.center = self.screenW / 4, ((self.screenH / 2) + 100)
+
+            textSurface_name2, textRect_name2 = self.createTextObj("Player 2 name", text_name)
+            textRect_name2.center = 3 * self.screenW / 4, ((self.screenH / 2) + 100)
+
+            wordBox1 = pg_functions.makeTextBox(self.screenW / 4 - 150, self.screenH / 2 + 150, 300, 0, "Write here", 0,
+                                                24)
+
+            wordBox2 = pg_functions.makeTextBox((3 * self.screenW / 4) - 150, self.screenH / 2 + 150, 300, 0,
+                                                "Write here", 0, 24)
+
+            rectLogo = images["logo"].get_rect()
+            rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
+            self.screen.blit(images["bg_large"], (0, -50))
+            self.screen.blit(images["logo"], rectLogo)
+            self.screen.blit(textSurface_name1, textRect_name1)
+            self.screen.blit(textSurface_name2, textRect_name2)
+            pg_functions.showTextBox(wordBox1)
+            pg_functions.showTextBox(wordBox2)
+
+            self.username1 = pg_functions.textBoxInput(wordBox1).upper()
+            self.username2 = pg_functions.textBoxInput(wordBox2).upper()
+
+            pygame.display.update()
+
+            if self.username1 is not None:
+                endName1 = True
+
+            if self.username2 is not None:
+                endName2 = True
+
+            if endName1 and endName2:
+                self.waitBeforeStart_duo()
+
+        pygame.quit()
+        quit()
+
+    def waitBeforeStart_duo(self):
+        startGame = False
+        player1_ready = False
+        player2_ready = False
+
+        start_IMG = pygame.image.load("src/assets/start.png").convert_alpha()
+        start_IMG = pygame.transform.scale(start_IMG, (300, 300))
+
+        text = pygame.font.Font(font["bradbunr"], 40)
+        textSurface1, textRect1 = self.createTextObj("{0} use Space to Jump".format(self.username1), text)
+        textRect1.center = self.screenW / 4, (3 * (self.screenH / 4))
+
+        textSurface2, textRect2 = self.createTextObj("{0} use Enter to Jump".format(self.username2), text)
+        textRect2.center = 3 * self.screenW / 4, (3 * (self.screenH / 4))
+
+        rectMenu = images["menu"].get_rect()
+        rectMenu.center = (self.screenW / 2, self.screenH - rectMenu.size[1] / 2 - 50)
+
+        rectReady = images["ready"].get_rect()
+        rectReady.center = (self.screenW / 2, rectReady.height / 2)
+
+        rectStart1 = start_IMG.get_rect()
+        rectStart1.center = (self.screenW / 4, 300)
+
+        rectStart2 = start_IMG.get_rect()
+        rectStart2.center = (3 * self.screenW / 4, 300)
+
+        self.screen.blit(images["bg_large"], (0, -50))
+        pygame.draw.rect(self.screen, colors["black"], (self.screenW / 2 - 2, 0, 4, self.screenH))
+        self.screen.blit(images["ready"], rectReady)
+        self.screen.blit(images["menu"], rectMenu)
+        self.screen.blit(textSurface1, textRect1)
+        self.screen.blit(textSurface2, textRect2)
+
+        pygame.display.update()
+
+        while not startGame:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    startGame = True
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    (x, y) = event.pos
+                    if rectMenu.collidepoint(x, y):
+                        startGame = True
+                        self.menu()
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        player1_ready = True
+                        self.screen.blit(start_IMG, rectStart1)
+                        pygame.display.update()
+
+                    if event.key == pygame.K_RETURN:
+                        player2_ready = True
+                        self.screen.blit(start_IMG, rectStart2)
+                        pygame.display.update()
+
+            if player1_ready and player2_ready:
+                startGame = True
+                self.startGame_duo()
+        pygame.quit()
+        quit()
+
+    def startGame_duo(self):
         pass
