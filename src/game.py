@@ -84,7 +84,7 @@ class Game:
                 if pipe.space > 230 and ship.score % 5 == 0:
                     pipe.space -= 40
                 pipe.passed = True
-        if ship.score % 9 == 0 and ship.score != 0:
+        if ship.score % 9 == 0:
             clock.start()
 
     def getScore(self):
@@ -167,7 +167,7 @@ class Game:
                 for pipe in all_pipes :
                     pipe.velocity = pipe.origin_velocity
                 bg.velocity = bg.origin_velocity
-                clock.velocity = clock.origin_velocity
+                clock.velocity = clock.origin_x_velocity
 
         pygame.quit()
         quit()
