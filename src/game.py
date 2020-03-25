@@ -5,6 +5,7 @@ import lib.pygame_functions as pg_functions
 from src.background import Background
 from src.clock_item import Clock_item
 from src.data import *
+from src.game_split_screen import Game_split_screen
 from src.pipes import Pipes
 from src.ship import Ship
 
@@ -468,4 +469,98 @@ class Game:
         quit()
 
     def startGame_duo(self):
-        pass
+        game_left = Game_split_screen(self.screen, self.username1, is_left=True)
+        game_right = Game_split_screen(self.screen, self.username2, is_left=False)
+
+        while not self.end_game:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.end_game = True
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE and game_left.ship.y_pos > game_left.ship.max_pos_y + game_left.ship.height:
+                        game_left.ship.jump()
+                    if event.key == pygame.K_RETURN and game_right.ship.y_pos > game_right.ship.max_pos_y + game_right.ship.height:
+                        game_right.ship.jump()
+            if game_left.ship.y_pos + game_left.ship.height > self.screenH:  # Ship 1 falls
+                self.lose_duo(game_left)
+            if game_right.ship.y_pos + game_right.ship.height > self.screenH:  # Ship 2 falls
+                self.lose_duo(game_right)
+
+            game_left.ship.move()
+            game_right.ship.move()
+
+            if not game_left.ship.goForward:
+                game_left.bg.move()
+                game_left.pipes.move()
+            if not game_right.ship.goForward:
+                game_right.bg.move()
+                game_right.pipes.move()
+
+            self.updateScore_duo(game_left.ship, game_left.pipes, game_left.bg)
+            self.updateScore_duo(game_right.ship, game_right.pipes, game_right.bg)
+
+            game_left.draw_split_screen()
+            game_right.draw_split_screen()
+            pygame.display.update(
+                pygame.draw.rect(self.screen, colors["black"], (self.screenW / 2 - 2, 0, 4, self.screenH)))
+
+            if game_left.ship.collision_pipes([game_left.pipes]):
+                self.lose_duo(game_left)
+            if game_right.ship.collision_pipes([game_right.pipes]):
+                self.lose_duo(game_right)
+        pygame.quit()
+        quit()
+
+    def lose_duo(self, game):
+        rectBoom = images["boom"].get_rect()
+        rectBoom.center = (self.screenW / 2, 350)
+
+        rectStart_again = images["start_again"].get_rect()
+        rectStart_again.center = (self.screenW / 2, 500)
+
+        rectMenu = images["menu"].get_rect()
+        rectMenu.center = (self.screenW / 2, self.screenH - rectMenu.size[1] / 2 - 50)
+
+        rectAlien = images["alien"].get_rect()
+        rectAlien.center = (self.screenW / 2, rectAlien.size[1] / 2 + 10)
+
+        self.screen.blit(images["alien"], rectAlien)
+        self.screen.blit(images["menu"], rectMenu)
+        self.screen.blit(images["boom"], rectBoom)
+        self.screen.blit(images["start_again"], rectStart_again)
+
+        pygame.display.update()
+        sounds["crash"].play()
+
+        end_lose = False
+
+        while not end_lose:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    (x, y) = event.pos
+                    if rectMenu.collidepoint(x, y):
+                        end_lose = True
+                        self.menu()
+                    else:
+                        self.waitBeforeStart_duo()
+                        end_lose = True
+                if event.type == pygame.KEYDOWN:
+                    self.waitBeforeStart_duo()
+                    end_lose = True
+        pygame.quit()
+        quit()
+
+    def updateScore_duo(self, ship, pipe, bg):
+        if ship.x_pos > pipe.x_pos and not pipe.passed:
+            ship.score += 1
+            sounds["score"].play()
+            if pipe.velocity < 13:
+                pipe.velocity += 0.5
+            if bg.velocity < 4:
+                bg.velocity += 0.2
+            if pipe.space > 230 and ship.score % 5 == 0:
+                pipe.space -= 40
+            pipe.passed = True

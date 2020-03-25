@@ -38,7 +38,7 @@ class Ship(Game_object):
         if self.goForward:
             self.x_pos += self.x_velocity
 
-        if self.x_pos > 200 and self.goForward:
+        if self.x_pos > 150 and self.goForward:
             self.goForward = False
 
         if self.velocity > 0:

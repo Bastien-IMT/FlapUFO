@@ -10,13 +10,10 @@ class Pipes(Game_object):
     max_pos = -570
     min_pos = -220
 
-    def __init__(self, screen, first=True, player2=False):
+    def __init__(self, screen, first=True):
         self.screen = screen
         self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
         self.origin_0 = 0
-
-        if player2:
-            self.origin_0 = self.screenWidth / 2
 
         self.image = {"up": images["pipe_up"], "down": images["pipe_down"]}
         self.rect = self.image["up"].get_rect()
