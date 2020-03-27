@@ -27,11 +27,11 @@ class Play_game:
 
         self.rect = self.game_window.get_rect(left=x_origin)
 
-        self.ship = Ship(self.game_window, single_player=solo)
+        self.ship = Ship(self.game_window, solo=solo)
         self.pipes = []
         self.pipes_number = 2 if solo else 1
         for i in range(0, self.pipes_number):
-            self.pipes.append(Pipes(self.game_window, first=True if (i == 0) else False))
+            self.pipes.append(Pipes(self.game_window, first=True if (i == 0) else False, single_player=solo))
         self.bg = Background(self.game_window)
         self.clock = Clock_item(self.game_window)
 
@@ -106,9 +106,9 @@ class Play_game:
                     self.clock.start()
 
     def reset(self):
+        self.end_game = False
         self.ship.reset()
         self.bg.reset()
         self.clock.reset()
         for pipe in self.pipes:
             pipe.reset()
-

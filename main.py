@@ -1,4 +1,4 @@
 from src.backbone import *
 
-game = Game()
+game = backbone()
 game.menu()

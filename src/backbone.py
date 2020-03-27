@@ -2,16 +2,12 @@ import os
 import pickle
 
 import lib.pygame_functions as pg_functions
-from src.background import Background
-from src.clock_item import Clock_item
 from src.data import *
 from src.game_split_screen import Game_split_screen
-from src.pipes import Pipes
-from src.ship import Ship
 from src.play_game import Play_game
 
 
-class Game:
+class backbone:
     screenW = SCREEN_WIDTH
     screenH = SCREEN_HEIGHT
     pg_functions.screenSize(screenW, screenW)
@@ -26,7 +22,7 @@ class Game:
         self.screen = pygame.display.set_mode((self.screenW, self.screenH))
         pygame.display.set_caption("FlapUFO")
         pygame.display.set_icon(images["icon"])
-        #pygame.mixer.music.play(-1, 25.3)
+        # pygame.mixer.music.play(-1, 25.3)
 
     def highScoreMenu(self):
         sorted_scores = sorted(self.all_scores.items(), key=lambda t: t[1], reverse=True)
@@ -224,31 +220,32 @@ class Game:
     def enterName_solo(self):
         endName = False
 
+        text_name = pygame.font.Font(font["bradbunr"], 40)
+        textSurface_name, textRect_name = createTextObj("Please enter your name", text_name)
+        textRect_name.center = self.screenW / 2, ((self.screenH / 2) + 100)
+
+        wordBox = pg_functions.makeTextBox(self.screenW / 2 - 150, self.screenH / 2 + 150, 300, 0, "Write here", 0,
+                                           24)
+
+        rectLogo = images["logo"].get_rect()
+        rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
+        self.screen.blit(images["bg_large"], (0, -50))
+        self.screen.blit(images["logo"], rectLogo)
+        self.screen.blit(textSurface_name, textRect_name)
+        pg_functions.showTextBox(wordBox)
+        username = pg_functions.textBoxInput(wordBox).upper()
+        pygame.display.update()
+
+        game = Play_game(self.screen, username, solo=True, is_left=True)
+
         while not endName:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     endName = True
 
-            text_name = pygame.font.Font(font["bradbunr"], 40)
-            textSurface_name, textRect_name = createTextObj("Please enter your name", text_name)
-            textRect_name.center = self.screenW / 2, ((self.screenH / 2) + 100)
-
-            wordBox = pg_functions.makeTextBox(self.screenW / 2 - 150, self.screenH / 2 + 150, 300, 0, "Write here", 0,
-                                               24)
-
-            rectLogo = images["logo"].get_rect()
-            rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
-            self.screen.blit(images["bg_large"], (0, -50))
-            self.screen.blit(images["logo"], rectLogo)
-            self.screen.blit(textSurface_name, textRect_name)
-            pg_functions.showTextBox(wordBox)
-            username = pg_functions.textBoxInput(wordBox).upper()
-            pygame.display.update()
-
-            game = Play_game(self.screen, username, solo=True)
-
             if game.username is not None:
                 endName = True
+                pg_functions.hideTextBox(wordBox)
                 self.waitBeforeStart_solo(game)
         pygame.quit()
         quit()
@@ -257,7 +254,7 @@ class Game:
         startGame = False
 
         text_one = pygame.font.Font(font["bradbunr"], 60)
-        textSurface, textRect = createTextObj("Use space of left click to jump", text_one)
+        textSurface, textRect = createTextObj("Use space bar to jump", text_one)
         textRect.center = 2 * self.screenW / 3, (2 * (self.screenH / 3))
 
         rectMenu = images["menu"].get_rect()
@@ -280,6 +277,8 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     startGame = True
+                    pygame.quit()
+                    quit()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     (x, y) = event.pos
@@ -295,59 +294,55 @@ class Game:
                         startGame = True
                         self.startGame_solo(game)
 
-        pygame.quit()
-        quit()
-
     def enterName_duo(self):
+        games = [Play_game(self.screen, None, solo=False, is_left=True),
+                 Play_game(self.screen, None, solo=False, is_left=False)]
+
+        text_name = pygame.font.Font(font["bradbunr"], 40)
+        textSurface_name1, textRect_name1 = createTextObj("Player 1 name", text_name)
+        textRect_name1.center = self.screenW / 4, ((self.screenH / 2) + 100)
+
+        textSurface_name2, textRect_name2 = createTextObj("Player 2 name", text_name)
+        textRect_name2.center = 3 * self.screenW / 4, ((self.screenH / 2) + 100)
+
+        wordBox1 = pg_functions.makeTextBox(self.screenW / 4 - 150, self.screenH / 2 + 150, 300, 0, "Write here", 0,
+                                            24)
+
+        wordBox2 = pg_functions.makeTextBox((3 * self.screenW / 4) - 150, self.screenH / 2 + 150, 300, 0,
+                                            "Write here", 0, 24)
+
+        rectLogo = images["logo"].get_rect()
+        rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
+        self.screen.blit(images["bg_large"], (0, -50))
+        self.screen.blit(images["logo"], rectLogo)
+        self.screen.blit(textSurface_name1, textRect_name1)
+        self.screen.blit(textSurface_name2, textRect_name2)
+        pg_functions.showTextBox(wordBox1)
+        pg_functions.showTextBox(wordBox2)
+        games[0].username = pg_functions.textBoxInput(wordBox1).upper()
+        games[1].username = pg_functions.textBoxInput(wordBox2).upper()
+
+        pygame.display.update()
+
         endName1 = False
         endName2 = False
 
-        while not (endName1 and endName2):
+        while not endName1 or not endName2:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    endName1 = True
-                    endName2 = True
-
-            text_name = pygame.font.Font(font["bradbunr"], 40)
-            textSurface_name1, textRect_name1 = createTextObj("Player 1 name", text_name)
-            textRect_name1.center = self.screenW / 4, ((self.screenH / 2) + 100)
-
-            textSurface_name2, textRect_name2 = createTextObj("Player 2 name", text_name)
-            textRect_name2.center = 3 * self.screenW / 4, ((self.screenH / 2) + 100)
-
-            wordBox1 = pg_functions.makeTextBox(self.screenW / 4 - 150, self.screenH / 2 + 150, 300, 0, "Write here", 0,
-                                                24)
-
-            wordBox2 = pg_functions.makeTextBox((3 * self.screenW / 4) - 150, self.screenH / 2 + 150, 300, 0,
-                                                "Write here", 0, 24)
-
-            rectLogo = images["logo"].get_rect()
-            rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
-            self.screen.blit(images["bg_large"], (0, -50))
-            self.screen.blit(images["logo"], rectLogo)
-            self.screen.blit(textSurface_name1, textRect_name1)
-            self.screen.blit(textSurface_name2, textRect_name2)
-            pg_functions.showTextBox(wordBox1)
-            pg_functions.showTextBox(wordBox2)
-
-            self.username1 = pg_functions.textBoxInput(wordBox1).upper()
-            self.username2 = pg_functions.textBoxInput(wordBox2).upper()
-
-            pygame.display.update()
-
-            if self.username1 is not None:
+                    pygame.quit()
+                    quit()
+            if games[0].username is not None:
                 endName1 = True
-
-            if self.username2 is not None:
+                pg_functions.hideTextBox(wordBox1)
+            if games[1].username is not None:
                 endName2 = True
+                pg_functions.hideTextBox(wordBox2)
 
-            if endName1 and endName2:
-                self.waitBeforeStart_duo()
+        if endName1 and endName2:
+            self.waitBeforeStart_duo(games)
 
-        pygame.quit()
-        quit()
-
-    def waitBeforeStart_duo(self):
+    def waitBeforeStart_duo(self, games):
         startGame = False
         player1_ready = False
         player2_ready = False
@@ -356,10 +351,10 @@ class Game:
         start_IMG = pygame.transform.scale(start_IMG, (300, 300))
 
         text = pygame.font.Font(font["bradbunr"], 40)
-        textSurface1, textRect1 = createTextObj("{0} use Space to Jump".format(self.username1), text)
+        textSurface1, textRect1 = createTextObj("{0} use Space to Jump".format(games[0].username), text)
         textRect1.center = self.screenW / 4, (3 * (self.screenH / 4))
 
-        textSurface2, textRect2 = createTextObj("{0} use Enter to Jump".format(self.username2), text)
+        textSurface2, textRect2 = createTextObj("{0} use Enter to Jump".format(games[1].username), text)
         textRect2.center = 3 * self.screenW / 4, (3 * (self.screenH / 4))
 
         rectMenu = images["menu"].get_rect()
@@ -387,19 +382,20 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     startGame = True
-
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     (x, y) = event.pos
                     if rectMenu.collidepoint(x, y):
                         startGame = True
+                        for game in games:
+                            game.reset()
                         self.menu()
-
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         player1_ready = True
                         self.screen.blit(start_IMG, rectStart1)
                         pygame.display.update()
-
                     if event.key == pygame.K_RETURN:
                         player2_ready = True
                         self.screen.blit(start_IMG, rectStart2)
@@ -407,54 +403,34 @@ class Game:
 
             if player1_ready and player2_ready:
                 startGame = True
-                self.startGame_duo()
-        pygame.quit()
-        quit()
+                self.startGame_duo(games)
 
-    def startGame_duo(self):
-        game_left = Game_split_screen(self.screen, self.username1, is_left=True)
-        game_right = Game_split_screen(self.screen, self.username2, is_left=False)
-
-        while not self.end_game:
+    def startGame_duo(self, games):
+        while not (games[0].end_game or games[1].end_game):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.end_game = True
+                    for game in games:
+                        game.end_game = True
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE and game_left.ship.y_pos > game_left.ship.max_pos_y + game_left.ship.height:
-                        game_left.ship.jump()
-                    if event.key == pygame.K_RETURN and game_right.ship.y_pos > game_right.ship.max_pos_y + game_right.ship.height:
-                        game_right.ship.jump()
-            if game_left.ship.y_pos + game_left.ship.height > self.screenH:  # Ship 1 falls
-                self.lose_duo(game_left)
-            if game_right.ship.y_pos + game_right.ship.height > self.screenH:  # Ship 2 falls
-                self.lose_duo(game_right)
+                    for game in games:
+                        if event.key == game.jump_key:
+                            game.ship.jump()
 
-            game_left.ship.move()
-            game_right.ship.move()
+            games[0].update()
+            games[1].update()
 
-            if not game_left.ship.goForward:
-                game_left.bg.move()
-                game_left.pipes.move()
-            if not game_right.ship.goForward:
-                game_right.bg.move()
-                game_right.pipes.move()
+            games[0].draw()
+            games[1].draw()
 
-            self.updateScore_duo(game_left.ship, game_left.pipes, game_left.bg)
-            self.updateScore_duo(game_right.ship, game_right.pipes, game_right.bg)
+            pygame.display.update()
+            self.clock.tick(60)
 
-            game_left.draw_split_screen()
-            game_right.draw_split_screen()
-            pygame.display.update(
-                pygame.draw.rect(self.screen, colors["black"], (self.screenW / 2 - 2, 0, 4, self.screenH)))
+        if games[0].end_game or games[1].end_game:
+            self.lose_duo(games)
 
-            if game_left.ship.collision_pipes([game_left.pipes]):
-                self.lose_duo(game_left)
-            if game_right.ship.collision_pipes([game_right.pipes]):
-                self.lose_duo(game_right)
-        pygame.quit()
-        quit()
-
-    def lose_duo(self, game):
+    def lose_duo(self, games):
         rectBoom = images["boom"].get_rect()
         rectBoom.center = (self.screenW / 2, 350)
 
@@ -475,9 +451,12 @@ class Game:
         pygame.display.update()
         sounds["crash"].play()
 
-        end_lose = False
+        for game in games:
+            game.reset()
 
-        while not end_lose:
+        end_lose_menu = False
+
+        while not end_lose_menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -485,16 +464,14 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     (x, y) = event.pos
                     if rectMenu.collidepoint(x, y):
-                        end_lose = True
+                        end_lose_menu = True
                         self.menu()
                     else:
-                        self.waitBeforeStart_duo()
-                        end_lose = True
+                        self.waitBeforeStart_duo(games)
+                        end_lose_menu = True
                 if event.type == pygame.KEYDOWN:
-                    self.waitBeforeStart_duo()
-                    end_lose = True
-        pygame.quit()
-        quit()
+                    self.waitBeforeStart_duo(games)
+                    end_lose_menu = True
 
     def updateScore_duo(self, ship, pipe, bg):
         if ship.x_pos > pipe.x_pos and not pipe.passed:

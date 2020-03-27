@@ -10,7 +10,7 @@ class Clock_item(Game_object):
 
     def __init__(self, screen):
         self.screen = screen
-        self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
+        self.screenWidth, self.screenHeight = self.screen.get_rect().size
 
         self.up_pos_max = 30
         self.low_pos_max = self.screenHeight - 30

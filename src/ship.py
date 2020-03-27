@@ -6,9 +6,9 @@ class Ship(Game_object):
     origin_x_velocity = 4
     origin_y_velocity = -10
 
-    def __init__(self, screen, single_player=True):
+    def __init__(self, screen, solo=True):
         self.screen = screen
-        self.screenHeight = pygame.display.get_surface().get_size()[1]
+        self.screenHeight = self.screen.get_rect().size[1]
         self.image = images["ship"]
         self.rect = self.image.get_rect()
         self.width, self.height = self.rect.size
@@ -23,7 +23,7 @@ class Ship(Game_object):
         self.score = 0
         self.spriteCount = 0
         self.goForward = True
-        self.final_pos_x = 150 if single_player else 75
+        self.final_pos_x = 150 if solo else 75
 
     def draw(self):
         if self.spriteCount + 1 >= 24:
@@ -58,7 +58,7 @@ class Ship(Game_object):
     def collision_pipes(self, pipes_list):
         result = False
         for pipe in pipes_list:
-            if self.x_pos + self.width > pipe.x_pos and self.x_pos < pipe.x_pos + pipe.width:  # ship between pipes (up and down)
+            if self.x_pos + self.width > pipe.x_pos and self.x_pos < pipe.x_pos + pipe.width:  # between pipes (up and down)
                 if self.y_pos < pipe.y_pos_up + pipe.height:  # collide with top
                     result = True
                     break
@@ -85,5 +85,3 @@ class Ship(Game_object):
         self.score = 0
         self.spriteCount = 0
         self.goForward = True
-
-

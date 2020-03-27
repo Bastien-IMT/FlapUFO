@@ -15,7 +15,7 @@ class Game_split_screen:
         self.split_screen = pygame.Surface((self.screenWidth / 2, self.screenHeight))
         self.rect = self.screen.get_rect(left=0 if is_left else self.screenWidth / 2)
 
-        self.ship = Ship(self.split_screen, single_player=False)
+        self.ship = Ship(self.split_screen, solo=False)
         self.pipes = Pipes(self.split_screen, first=True)
         self.bg = Background(self.split_screen)
 
