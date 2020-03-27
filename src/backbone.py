@@ -22,7 +22,7 @@ class backbone:
         self.screen = pygame.display.set_mode((self.screenW, self.screenH))
         pygame.display.set_caption("FlapUFO")
         pygame.display.set_icon(images["icon"])
-        # pygame.mixer.music.play(-1, 25.3)
+        pygame.mixer.music.play(-1, 25.3)
 
     def highScoreMenu(self):
         sorted_scores = sorted(self.all_scores.items(), key=lambda t: t[1], reverse=True)

@@ -16,16 +16,12 @@ class Play_game:
         self.is_left = is_left
         self.solo = solo
 
-        x_origin = 0
-        if not (solo and is_left):
-            x_origin = self.screenWidth / 2
-
         self.game_window_width = self.screenWidth if self.solo else self.screenWidth / 2
         self.game_window_height = self.screenHeight
 
         self.game_window = pygame.Surface((self.game_window_width, self.game_window_height))
 
-        self.rect = self.game_window.get_rect(left=x_origin)
+        self.rect = self.screen.get_rect(left=0 if is_left else self.screenWidth / 2)
 
         self.ship = Ship(self.game_window, solo=solo)
         self.pipes = []
