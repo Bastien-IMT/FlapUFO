@@ -49,9 +49,10 @@ class Ship(Game_object):
         self.velocity += 0.5
 
     def jump(self):
-        self.isJump = True
-        self.velocity = -13.5
-        sounds["jump"].play()
+        if self.y_pos > self.max_pos_y + self.height:
+            self.isJump = True
+            self.velocity = -13.5
+            sounds["jump"].play()
 
     def collision_pipes(self, pipes_list):
         result = False

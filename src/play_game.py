@@ -42,10 +42,6 @@ class Play_game:
         else:
             self.jump_key = pygame.K_RETURN
 
-    def createTextObj(self, text, font):
-        textSurface = font.render(text, True, colors["white"])
-        return textSurface, textSurface.get_rect()
-
     def draw(self):
         self.screen.blit(self.game_window, self.rect)
 
@@ -58,7 +54,7 @@ class Play_game:
         text_font = pygame.font.Font(font["bradbunr"], 25)
 
         string1 = "Score {0} : {1}".format(self.username, self.game_objects["ship"].score)
-        textSurface, textRect = self.createTextObj(string1, text_font)
+        textSurface, textRect = createTextObj(string1, text_font)
         self.game_window.blit(textSurface, textRect)
 
         if not self.solo:
@@ -66,7 +62,7 @@ class Play_game:
             pygame.draw.rect(self.game_window, colors["black"], (x_rect_split, 0, 2, self.game_window_height))
 
     def update(self):
-        if self.ship.y_pos + self.ship.height > self.game_window_height:  # Fall
+        if self.ship.y_pos + self.ship.height > self.game_window_height:  # Ship falls
             self.lose()
         self.ship.move()
 
@@ -110,17 +106,4 @@ class Play_game:
                     self.clock.start()
 
     def lose(self):
-
-        sounds["crash"].play()
-
-        rectBoom = images["boom"].get_rect()
-        rectBoom.center = (self.game_window_width / 2, self.game_window_height / 2)
-
-        rectAlien = images["alien"].get_rect()
-        rectAlien.center = (self.game_window_width / 2, rectAlien.size[1] / 2 + 10)
-
-        self.game_window.blit(images["alien"], rectAlien)
-        self.game_window.blit(images["boom"], rectBoom)
-
-        pygame.display.update()
         self.end_game = True

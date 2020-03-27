@@ -8,6 +8,7 @@ from src.data import *
 from src.game_split_screen import Game_split_screen
 from src.pipes import Pipes
 from src.ship import Ship
+from src.play_game import Play_game
 
 
 class Game:
@@ -15,8 +16,6 @@ class Game:
     screenH = SCREEN_HEIGHT
     pg_functions.screenSize(screenW, screenW)
     end_game = False
-    username1 = None
-    username2 = None
     clock = pygame.time.Clock()
     all_scores = dict()
 
@@ -49,13 +48,13 @@ class Game:
 
         text_font = pygame.font.Font(font["bradbunr"], 75)
 
-        text1, textRect1 = self.createTextObj(string1, text_font)
+        text1, textRect1 = createTextObj(string1, text_font)
         textRect1.center = self.screenW / 2, 250
 
-        text2, textRect2 = self.createTextObj(string2, text_font)
+        text2, textRect2 = createTextObj(string2, text_font)
         textRect2.center = self.screenW / 2, 350
 
-        text3, textRect3 = self.createTextObj(string3, text_font)
+        text3, textRect3 = createTextObj(string3, text_font)
         textRect3.center = self.screenW / 2, 450
 
         rectMenu = images["menu"].get_rect()
@@ -87,8 +86,6 @@ class Game:
         quit()
 
     def menu(self):
-        self.username1 = None
-        self.username2 = None
 
         rectLogo = images["logo"].get_rect()
         rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
@@ -129,27 +126,23 @@ class Game:
         pygame.quit()
         quit()
 
-    def createTextObj(self, text, font):
-        textSurface = font.render(text, True, colors["white"])
-        return textSurface, textSurface.get_rect()
-
-    def updateScore(self, ship, pipes, bg, clock):
-        for pipe in pipes:
-            if ship.x_pos > pipe.x_pos and not pipe.passed:
-                ship.score += 1
-                sounds["score"].play()
-                if pipe.velocity < 13:
-                    for pipe2 in pipes:
-                        pipe2.velocity += 0.5
-                    clock.velocity += 0.5
-                if bg.velocity < 4:
-                    bg.velocity += 0.2
-
-                if pipe.space > 230 and ship.score % 5 == 0:
-                    pipe.space -= 40
-                pipe.passed = True
-        if ship.score % 4 == 0 and ship.score != 0:
-            clock.start()
+    # def updateScore(self, ship, pipes, bg, clock):
+    #     for pipe in pipes:
+    #         if ship.x_pos > pipe.x_pos and not pipe.passed:
+    #             ship.score += 1
+    #             sounds["score"].play()
+    #             if pipe.velocity < 13:
+    #                 for pipe2 in pipes:
+    #                     pipe2.velocity += 0.5
+    #                 clock.velocity += 0.5
+    #             if bg.velocity < 4:
+    #                 bg.velocity += 0.2
+    #
+    #             if pipe.space > 230 and ship.score % 5 == 0:
+    #                 pipe.space -= 40
+    #             pipe.passed = True
+    #     if ship.score % 4 == 0 and ship.score != 0:
+    #         clock.start()
 
     def getScore(self):
         if os.path.exists(name_score_file):
@@ -172,7 +165,7 @@ class Game:
         text = pygame.font.Font(font["bradbunr"], 25)
 
         string = "Score : {}".format(game_objects["ship"].score)
-        textSurface, textRect = self.createTextObj(string, text)
+        textSurface, textRect = createTextObj(string, text)
         self.screen.blit(textSurface, textRect)
 
         if game_objects["ship"].score > self.all_scores[self.username1]:
@@ -181,62 +174,49 @@ class Game:
             highScore = self.all_scores[self.username1]
 
         string2 = "Player {0} best score : {1}".format(self.username1, highScore)
-        textSurface2, textRect2 = self.createTextObj(string2, text)
+        textSurface2, textRect2 = createTextObj(string2, text)
         textRect2.center = (self.screenW - textRect2.width / 2, textRect2.height / 2)
         self.screen.blit(textSurface2, textRect2)
 
         pygame.display.update()
         self.clock.tick(60)
 
-    def startGame_solo(self):
-        if self.username1 not in self.all_scores.keys():
-            self.all_scores[self.username1] = 0
+    def startGame_solo(self, game):
+        if game.username not in self.all_scores.keys():
+            self.all_scores[game.username] = 0
 
-        game_objects = {"bg": Background(self.screen), "ship": Ship(self.screen),
-                        "pipes1": Pipes(self.screen, first=True), "pipes2": Pipes(self.screen, first=False),
-                        "clock": Clock_item(self.screen)}
+        game.end_game = False
 
-        # shortcuts for shorter code
-        bg = game_objects["bg"]
-        ship = game_objects["ship"]
-        all_pipes = [game_objects["pipes1"], game_objects["pipes2"]]
-        clock = game_objects["clock"]
-
-        while not self.end_game:
+        while not game.end_game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.end_game = True
+                    game.end_game = True
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE and ship.y_pos > ship.max_pos_y + ship.height:  # Jump with mouth
-                        ship.jump()
-                if pygame.mouse.get_pressed()[0] and ship.y_pos > ship.max_pos_y + ship.height:  # Jump with space bar
-                    ship.jump()
-            if ship.y_pos + ship.height > self.screenH:  # Fall
-                self.lose_solo(ship)
+                    if event.key == game.jump_key:
+                        game.ship.jump()
+            game.update()
+            game.draw()
 
-            ship.move()
-            if not ship.goForward:
-                bg.move()
-                clock.move()
-                for pipe in all_pipes:
-                    pipe.move()
+            if game.ship.score > self.all_scores[game.username]:
+                highScore = game.ship.score
+            else:
+                highScore = self.all_scores[game.username]
 
-            self.updateScore(ship, all_pipes, bg, clock)
-            self.drawGame_solo(game_objects)
-            if ship.collision_pipes(all_pipes):
-                self.lose_solo(ship)
-            if clock.appears and ship.collision_clock(clock):
-                sounds["slow"].play()
-                clock.respawn()
-                for pipe in all_pipes:
-                    pipe.velocity = pipe.origin_velocity
-                bg.velocity = bg.origin_velocity
-                clock.velocity = clock.origin_x_velocity
+            text = pygame.font.Font(font["bradbunr"], 25)
+            string2 = "Player {0} best score : {1}".format(game.username, highScore)
+            textSurface2, textRect2 = createTextObj(string2, text)
+            textRect2.center = (self.screenW - textRect2.width / 2, textRect2.height / 2)
+            self.screen.blit(textSurface2, textRect2)
 
-        pygame.quit()
-        quit()
+            pygame.display.update()
+            self.clock.tick(60)
 
-    def lose_solo(self, ship):
+        if game.end_game:
+            self.lose_solo(game)
+
+    def lose_solo(self, game):
         rectBoom = images["boom"].get_rect()
         rectBoom.center = (self.screenW / 2, 350)
 
@@ -257,14 +237,14 @@ class Game:
         pygame.display.update()
         sounds["crash"].play()
 
-        if ship.score > self.all_scores[self.username1]:
-            self.all_scores[self.username1] = ship.score
+        if game.ship.score > self.all_scores[game.username]:
+            self.all_scores[game.username] = game.ship.score
             self.saveScore()
-        ship.score = 0
+        game.ship.score = 0
 
-        end_lose = False
+        end_lose_menu = False
 
-        while not end_lose:
+        while not end_lose_menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -272,14 +252,14 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     (x, y) = event.pos
                     if rectMenu.collidepoint(x, y):
-                        end_lose = True
+                        end_lose_menu = True
                         self.menu()
                     else:
-                        self.waitBeforeStart_solo()
-                        end_lose = True
+                        self.waitBeforeStart_solo(game)
+                        end_lose_menu = True
                 if event.type == pygame.KEYDOWN:
-                    self.waitBeforeStart_solo()
-                    end_lose = True
+                    self.waitBeforeStart_solo(game)
+                    end_lose_menu = True
 
     def enterName_solo(self):
         endName = False
@@ -290,7 +270,7 @@ class Game:
                     endName = True
 
             text_name = pygame.font.Font(font["bradbunr"], 40)
-            textSurface_name, textRect_name = self.createTextObj("Please enter your name", text_name)
+            textSurface_name, textRect_name = createTextObj("Please enter your name", text_name)
             textRect_name.center = self.screenW / 2, ((self.screenH / 2) + 100)
 
             wordBox = pg_functions.makeTextBox(self.screenW / 2 - 150, self.screenH / 2 + 150, 300, 0, "Write here", 0,
@@ -302,19 +282,22 @@ class Game:
             self.screen.blit(images["logo"], rectLogo)
             self.screen.blit(textSurface_name, textRect_name)
             pg_functions.showTextBox(wordBox)
-            self.username1 = pg_functions.textBoxInput(wordBox).upper()
+            username = pg_functions.textBoxInput(wordBox).upper()
             pygame.display.update()
-            if self.username1 is not None:
+
+            game = Play_game(self.screen, username, solo=True)
+
+            if game.username is not None:
                 endName = True
-                self.waitBeforeStart_solo()
+                self.waitBeforeStart_solo(game)
         pygame.quit()
         quit()
 
-    def waitBeforeStart_solo(self):
+    def waitBeforeStart_solo(self, game):
         startGame = False
 
         text_one = pygame.font.Font(font["bradbunr"], 60)
-        textSurface, textRect = self.createTextObj("Use space of left click to jump", text_one)
+        textSurface, textRect = createTextObj("Use space of left click to jump", text_one)
         textRect.center = 2 * self.screenW / 3, (2 * (self.screenH / 3))
 
         rectMenu = images["menu"].get_rect()
@@ -345,12 +328,12 @@ class Game:
                         self.menu()
                     else:
                         startGame = True
-                        self.startGame_solo()
+                        self.startGame_solo(game)
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         startGame = True
-                        self.startGame_solo()
+                        self.startGame_solo(game)
 
         pygame.quit()
         quit()
@@ -366,10 +349,10 @@ class Game:
                     endName2 = True
 
             text_name = pygame.font.Font(font["bradbunr"], 40)
-            textSurface_name1, textRect_name1 = self.createTextObj("Player 1 name", text_name)
+            textSurface_name1, textRect_name1 = createTextObj("Player 1 name", text_name)
             textRect_name1.center = self.screenW / 4, ((self.screenH / 2) + 100)
 
-            textSurface_name2, textRect_name2 = self.createTextObj("Player 2 name", text_name)
+            textSurface_name2, textRect_name2 = createTextObj("Player 2 name", text_name)
             textRect_name2.center = 3 * self.screenW / 4, ((self.screenH / 2) + 100)
 
             wordBox1 = pg_functions.makeTextBox(self.screenW / 4 - 150, self.screenH / 2 + 150, 300, 0, "Write here", 0,
@@ -413,10 +396,10 @@ class Game:
         start_IMG = pygame.transform.scale(start_IMG, (300, 300))
 
         text = pygame.font.Font(font["bradbunr"], 40)
-        textSurface1, textRect1 = self.createTextObj("{0} use Space to Jump".format(self.username1), text)
+        textSurface1, textRect1 = createTextObj("{0} use Space to Jump".format(self.username1), text)
         textRect1.center = self.screenW / 4, (3 * (self.screenH / 4))
 
-        textSurface2, textRect2 = self.createTextObj("{0} use Enter to Jump".format(self.username2), text)
+        textSurface2, textRect2 = createTextObj("{0} use Enter to Jump".format(self.username2), text)
         textRect2.center = 3 * self.screenW / 4, (3 * (self.screenH / 4))
 
         rectMenu = images["menu"].get_rect()

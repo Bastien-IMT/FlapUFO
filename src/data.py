@@ -45,6 +45,19 @@ spriteShipFall = [pygame.image.load("src/assets/shipFall/1.png").convert_alpha()
 # FONT
 font = {"bradbunr": "src/assets/BradBunR.ttf"}
 
+
+def createTextObj(text, font):
+    """
+    Creates a text object with a string and a font
+    :type font: pygame.font.Font(font_name, 75)
+    :param text: string to display
+    :param font: font in which to display text
+    :return: a surface with the text and its rect
+    """
+    textSurface = font.render(text, True, colors["white"])
+    return textSurface, textSurface.get_rect()
+
+
 # SOUNDS
 
 sounds = {"music": pygame.mixer.music.load("src/assets/music.mp3"), "crash": pygame.mixer.Sound("src/assets/crash.wav"),
