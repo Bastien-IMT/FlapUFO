@@ -44,6 +44,13 @@ class Clock_item(Game_object):
         if self.appears:
             self.screen.blit(self.image, (self.x_pos, self.y_pos))
 
+    def reset(self):
+        self.x_pos = self.start_point
+        self.y_pos = randint(self.up_pos_max, self.low_pos_max)
+        self.velocity = self.origin_x_velocity
+        self.y_velocity = self.origin_y_velocity
+        self.appears = False
+
     def respawn(self):
         self.x_pos = self.start_point
         self.y_pos = randint(self.up_pos_max, self.low_pos_max)

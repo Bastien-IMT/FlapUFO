@@ -8,3 +8,6 @@ class Game_object(ABC):
 
     @abstractclassmethod
     def draw(self): pass
+
+    @abstractclassmethod
+    def reset(self): pass

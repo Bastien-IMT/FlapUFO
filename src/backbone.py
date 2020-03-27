@@ -26,7 +26,7 @@ class Game:
         self.screen = pygame.display.set_mode((self.screenW, self.screenH))
         pygame.display.set_caption("FlapUFO")
         pygame.display.set_icon(images["icon"])
-        pygame.mixer.music.play(-1, 25.3)
+        #pygame.mixer.music.play(-1, 25.3)
 
     def highScoreMenu(self):
         sorted_scores = sorted(self.all_scores.items(), key=lambda t: t[1], reverse=True)
@@ -126,24 +126,6 @@ class Game:
         pygame.quit()
         quit()
 
-    # def updateScore(self, ship, pipes, bg, clock):
-    #     for pipe in pipes:
-    #         if ship.x_pos > pipe.x_pos and not pipe.passed:
-    #             ship.score += 1
-    #             sounds["score"].play()
-    #             if pipe.velocity < 13:
-    #                 for pipe2 in pipes:
-    #                     pipe2.velocity += 0.5
-    #                 clock.velocity += 0.5
-    #             if bg.velocity < 4:
-    #                 bg.velocity += 0.2
-    #
-    #             if pipe.space > 230 and ship.score % 5 == 0:
-    #                 pipe.space -= 40
-    #             pipe.passed = True
-    #     if ship.score % 4 == 0 and ship.score != 0:
-    #         clock.start()
-
     def getScore(self):
         if os.path.exists(name_score_file):
             with open(name_score_file, 'rb') as file:
@@ -157,29 +139,6 @@ class Game:
         with open(name_score_file, 'wb') as file:
             score_obj = pickle.Pickler(file)
             score_obj.dump(self.all_scores)
-
-    def drawGame_solo(self, game_objects):
-        for object in game_objects.values():
-            object.draw()
-
-        text = pygame.font.Font(font["bradbunr"], 25)
-
-        string = "Score : {}".format(game_objects["ship"].score)
-        textSurface, textRect = createTextObj(string, text)
-        self.screen.blit(textSurface, textRect)
-
-        if game_objects["ship"].score > self.all_scores[self.username1]:
-            highScore = game_objects["ship"].score
-        else:
-            highScore = self.all_scores[self.username1]
-
-        string2 = "Player {0} best score : {1}".format(self.username1, highScore)
-        textSurface2, textRect2 = createTextObj(string2, text)
-        textRect2.center = (self.screenW - textRect2.width / 2, textRect2.height / 2)
-        self.screen.blit(textSurface2, textRect2)
-
-        pygame.display.update()
-        self.clock.tick(60)
 
     def startGame_solo(self, game):
         if game.username not in self.all_scores.keys():
@@ -240,7 +199,8 @@ class Game:
         if game.ship.score > self.all_scores[game.username]:
             self.all_scores[game.username] = game.ship.score
             self.saveScore()
-        game.ship.score = 0
+
+        game.reset()
 
         end_lose_menu = False
 

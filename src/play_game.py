@@ -63,7 +63,7 @@ class Play_game:
 
     def update(self):
         if self.ship.y_pos + self.ship.height > self.game_window_height:  # Ship falls
-            self.lose()
+            self.end_game = True
         self.ship.move()
 
         if not self.ship.goForward:
@@ -75,7 +75,7 @@ class Play_game:
         self.updateScore()
 
         if self.ship.collision_pipes(self.pipes):
-            self.lose()
+            self.end_game = True
         if self.ship.collision_clock(self.clock):
             sounds["slow"].play()
             self.clock.respawn()
@@ -105,5 +105,10 @@ class Play_game:
                 if self.ship.score % 4 == 0 and self.ship.score != 0:
                     self.clock.start()
 
-    def lose(self):
-        self.end_game = True
+    def reset(self):
+        self.ship.reset()
+        self.bg.reset()
+        self.clock.reset()
+        for pipe in self.pipes:
+            pipe.reset()
+

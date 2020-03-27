@@ -30,3 +30,9 @@ class Background(Game_object):
     def draw(self):
         self.screen.blit(self.image, (self.x_pos1, self.y_pos))
         self.screen.blit(self.image, (self.x_pos2, self.y_pos))
+
+    def reset(self):
+        self.x_pos1 = 0
+        self.x_pos2 = self.x_pos1 + self.width
+        self.y_pos = self.offset_y
+        self.velocity = self.origin_velocity

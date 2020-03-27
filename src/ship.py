@@ -23,6 +23,7 @@ class Ship(Game_object):
         self.score = 0
         self.spriteCount = 0
         self.goForward = True
+        self.final_pos_x = 150 if single_player else 75
 
     def draw(self):
         if self.spriteCount + 1 >= 24:
@@ -38,7 +39,7 @@ class Ship(Game_object):
         if self.goForward:
             self.x_pos += self.x_velocity
 
-        if self.x_pos > 150 and self.goForward:
+        if self.x_pos > self.final_pos_x and self.goForward:
             self.goForward = False
 
         if self.velocity > 0:
@@ -74,3 +75,15 @@ class Ship(Game_object):
             elif self.y_pos + self.height > clock.y_pos and self.y_pos < clock.y_pos + clock.height:  # y collapse bottom ship
                 result = True
         return result
+
+    def reset(self):
+        self.x_pos = -self.width
+        self.y_pos = self.screenHeight / 2 - self.height
+        self.isJump = False
+        self.velocity = self.origin_y_velocity
+        self.x_velocity = self.origin_x_velocity
+        self.score = 0
+        self.spriteCount = 0
+        self.goForward = True
+
+
