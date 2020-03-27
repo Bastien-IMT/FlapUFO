@@ -3,11 +3,10 @@ import pickle
 
 import lib.pygame_functions as pg_functions
 from src.data import *
-from src.game_split_screen import Game_split_screen
 from src.play_game import Play_game
 
 
-class backbone:
+class Backbone:
     screenW = SCREEN_WIDTH
     screenH = SCREEN_HEIGHT
     pg_functions.screenSize(screenW, screenW)
@@ -472,15 +471,3 @@ class backbone:
                 if event.type == pygame.KEYDOWN:
                     self.waitBeforeStart_duo(games)
                     end_lose_menu = True
-
-    def updateScore_duo(self, ship, pipe, bg):
-        if ship.x_pos > pipe.x_pos and not pipe.passed:
-            ship.score += 1
-            sounds["score"].play()
-            if pipe.velocity < 13:
-                pipe.velocity += 0.5
-            if bg.velocity < 4:
-                bg.velocity += 0.2
-            if pipe.space > 230 and ship.score % 5 == 0:
-                pipe.space -= 40
-            pipe.passed = True
