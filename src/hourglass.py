@@ -29,7 +29,7 @@ class Hourglass(GameObject):
         # Position settings
         self.up_pos_max = 30
         self.low_pos_max = self.screenHeight - (30 + self.height)
-        self.start_point = self.screenWidth + self.width + images["pipe_down"].get_rect().size[0]
+        self.start_point = self.screenWidth + self.width + images["pipe_down1"].get_rect().size[0]
         self.x_pos = self.start_point
         self.y_pos = randint(self.up_pos_max, self.low_pos_max)
         self.x_velocity = self.origin_x_velocity

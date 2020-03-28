@@ -9,13 +9,14 @@ class Background(GameObject):
     offset_y = -50
     origin_velocity = 0.7
 
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: pygame.Surface, is_left: bool = True):
         """
         Initialize object (1 game = Background object).
         :param screen: surface to display background on
+        :param is_left: bool
         """
         # Display settings
-        self.image = images["bg_large"]
+        self.image = images["bg_large"] if is_left else images["bg_large2"]
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.screen = screen

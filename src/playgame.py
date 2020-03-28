@@ -36,12 +36,13 @@ class PlayGame:
         self.rect = self.screen.get_rect(left=0 if is_left else self.screenWidth / 2)
 
         # creating game objects
-        self.ship = Ship(self.game_window, solo=solo)
+        self.ship = Ship(self.game_window, solo=solo, is_left=is_left)
         self.pipes = []
         self.pipes_number = 2 if solo else 1
         for i in range(0, self.pipes_number):
-            self.pipes.append(Pipes(self.game_window, first=True if (i == 0) else False, single_player=solo))
-        self.bg = Background(self.game_window)
+            self.pipes.append(
+                Pipes(self.game_window, first=True if (i == 0) else False, single_player=solo, is_left=is_left))
+        self.bg = Background(self.game_window, is_left=is_left)
         self.hourglass = Hourglass(self.game_window)
 
         # control settings

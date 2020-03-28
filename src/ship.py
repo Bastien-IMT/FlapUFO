@@ -10,11 +10,12 @@ class Ship(GameObject):
     origin_x_velocity = 4
     origin_y_velocity = -10
 
-    def __init__(self, screen: pygame.Surface, solo: bool = True):
+    def __init__(self, screen: pygame.Surface, solo: bool = True, is_left: bool = True):
         """
         Initialize the object.
         :param screen: pygame surface to display ship
         :param solo: True if solo mode False if duo mode
+        :param is_left: True if screen left else false
         """
 
         # display settings
@@ -23,8 +24,8 @@ class Ship(GameObject):
         self.image = images["ship"]
         self.rect = self.image.get_rect()
         self.width, self.height = self.rect.size
-        self.spriteJump = spriteShipJump
-        self.spriteFall = spriteShipFall
+        self.spriteJump = spriteShipJump1 if is_left else spriteShipJump2
+        self.spriteFall = spriteShipFall1 if is_left else spriteShipFall2
 
         # position settings
         self.x_pos = -self.width

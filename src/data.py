@@ -14,12 +14,15 @@ maxPosShip = 10
 pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 images = {"bg": pygame.image.load("src/assets/bg.png").convert(),
           "icon": pygame.image.load("src/assets/icon.png").convert_alpha(),
-          "pipe_down": pygame.image.load("src/assets/pipe_down.png").convert_alpha(),
-          "pipe_up": pygame.image.load("src/assets/pipe_up.png").convert_alpha(),
+          "pipe_down1": pygame.image.load("src/assets/pipe_down.png").convert_alpha(),
+          "pipe_up1": pygame.image.load("src/assets/pipe_up.png").convert_alpha(),
+          "pipe_down2": pygame.image.load("src/assets/pipe_down2.png").convert_alpha(),
+          "pipe_up2": pygame.image.load("src/assets/pipe_up2.png").convert_alpha(),
           "alien": pygame.image.load("src/assets/alien.png").convert_alpha(),
           "ship": pygame.image.load("src/assets/ship.png").convert_alpha(),
           "logo": pygame.image.load("src/assets/logo.png").convert_alpha(),
           "bg_large": pygame.image.load("src/assets/bg_large.png").convert(),
+          "bg_large2": pygame.image.load("src/assets/bg_large2.png").convert(),
           "start": pygame.image.load("src/assets/start.png").convert_alpha(),
           "highscores": pygame.image.load("src/assets/highscore.png").convert_alpha(),
           "ready": pygame.image.load("src/assets/ready.png").convert_alpha(),
@@ -32,15 +35,25 @@ images = {"bg": pygame.image.load("src/assets/bg.png").convert(),
           "start_again": pygame.image.load("src/assets/start_again.png").convert_alpha()
           }
 
-spriteShipJump = [pygame.image.load("src/assets/shipJump/1.png").convert_alpha(),
-                  pygame.image.load("src/assets/shipJump/2.png").convert_alpha(),
-                  pygame.image.load("src/assets/shipJump/3.png").convert_alpha(),
-                  pygame.image.load("src/assets/shipJump/4.png").convert_alpha()]
+spriteShipJump1 = [pygame.image.load("src/assets/shipJump1/1.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipJump1/2.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipJump1/3.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipJump1/4.png").convert_alpha()]
 
-spriteShipFall = [pygame.image.load("src/assets/shipFall/1.png").convert_alpha(),
-                  pygame.image.load("src/assets/shipFall/2.png").convert_alpha(),
-                  pygame.image.load("src/assets/shipFall/3.png").convert_alpha(),
-                  pygame.image.load("src/assets/shipFall/4.png").convert_alpha()]
+spriteShipFall1 = [pygame.image.load("src/assets/shipFall1/1.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipFall1/2.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipFall1/3.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipFall1/4.png").convert_alpha()]
+
+spriteShipJump2 = [pygame.image.load("src/assets/shipJump2/1.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipJump2/2.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipJump2/3.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipJump2/4.png").convert_alpha()]
+
+spriteShipFall2 = [pygame.image.load("src/assets/shipFall2/1.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipFall2/2.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipFall2/3.png").convert_alpha(),
+                   pygame.image.load("src/assets/shipFall2/4.png").convert_alpha()]
 
 # FONT
 font = {"bradbunr": "src/assets/BradBunR.ttf"}

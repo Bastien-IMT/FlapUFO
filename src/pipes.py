@@ -13,7 +13,7 @@ class Pipes(GameObject):
     max_pos = -570
     min_pos = -220
 
-    def __init__(self, screen: pygame.Surface, first: bool = True, single_player: bool = True):
+    def __init__(self, screen: pygame.Surface, first: bool = True, single_player: bool = True, is_left: bool = True):
         """
         Initialize pipes object (= top pipe + bottom pipe).
         :param screen: surface to display pipes
@@ -24,7 +24,9 @@ class Pipes(GameObject):
         # display settings
         self.screen = screen
         self.screenWidth, self.screenHeight = self.screen.get_rect().size
-        self.image = {"up": images["pipe_up"], "down": images["pipe_down"]}
+        self.image = {"up": images["pipe_up1"], "down": images["pipe_down1"]} if is_left else {"up": images["pipe_up2"],
+                                                                                               "down": images[
+                                                                                                   "pipe_down2"]}
         self.rect = self.image["up"].get_rect()
         self.width, self.height = self.image["up"].get_rect().size
 
