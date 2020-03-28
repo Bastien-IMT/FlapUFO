@@ -18,7 +18,7 @@ class Setup:
 
     def __init__(self):
         """
-        __init__(self): initialize pygame and window
+        Initialize pygame and window
         """
         self.all_scores = self.getScore()
         pygame.init()

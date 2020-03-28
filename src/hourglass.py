@@ -28,11 +28,11 @@ class Hourglass(GameObject):
 
         # Position settings
         self.up_pos_max = 30
-        self.low_pos_max = self.screenHeight - 30
+        self.low_pos_max = self.screenHeight - (30 + self.height)
         self.start_point = self.screenWidth + self.width + images["pipe_down"].get_rect().size[0]
         self.x_pos = self.start_point
         self.y_pos = randint(self.up_pos_max, self.low_pos_max)
-        self.velocity = self.origin_x_velocity
+        self.x_velocity = self.origin_x_velocity
         self.y_velocity = self.origin_y_velocity
 
         # internal settings to make it run
@@ -43,16 +43,14 @@ class Hourglass(GameObject):
         Make Hourglass move.
         """
         if self.appears:
-            self.x_pos -= self.velocity
+            self.x_pos -= self.x_velocity
             self.y_pos -= self.y_velocity
-        if self.x_pos == -self.width:
-            self.appears = False
-        if self.x_pos < -self.width:
-            self.updateCoordinates()
-        if self.y_pos < self.up_pos_max:
-            self.velocity *= -1
-        if self.y_pos > self.low_pos_max:
-            self.velocity *= -1
+            if self.x_pos < -self.width:
+                self.updateCoordinates()
+            if self.y_pos < self.up_pos_max:
+                self.y_velocity *= -1
+            if self.y_pos > self.low_pos_max:
+                self.y_velocity *= -1
 
     def draw(self):
         """
@@ -67,8 +65,8 @@ class Hourglass(GameObject):
         """
         self.x_pos = self.start_point
         self.y_pos = randint(self.up_pos_max, self.low_pos_max)
-        self.velocity = self.origin_x_velocity
-        self.y_velocity = self.origin_y_velocity
+        self.x_velocity = self.origin_x_velocity
+        self.y_velocity = self.origin_y_velocity * choice(self.direction)
         self.appears = False
 
     def updateCoordinates(self):
@@ -77,6 +75,7 @@ class Hourglass(GameObject):
         """
         self.x_pos = self.start_point
         self.y_pos = randint(self.up_pos_max, self.low_pos_max)
+        self.y_velocity = self.origin_y_velocity * choice(self.direction)
         self.appears = False
 
     def start(self):

@@ -96,7 +96,7 @@ class PlayGame:
             for pipe in self.pipes:
                 pipe.velocity = pipe.origin_velocity
             self.bg.velocity = self.bg.origin_velocity
-            self.hourglass.velocity = self.hourglass.origin_x_velocity
+            self.hourglass.x_velocity = self.hourglass.origin_x_velocity
 
     def updateScore(self):
         """
@@ -110,13 +110,14 @@ class PlayGame:
                 if pipe.velocity < 13:
                     for pipe_2 in self.pipes:
                         pipe_2.velocity += 0.5
-                    self.hourglass.velocity += 0.5
+                    self.hourglass.x_velocity += 0.5
 
                 if self.bg.velocity < 4:
                     self.bg.velocity += 0.2
 
                 if pipe.space > 230 and self.ship.score % 2 != 0:
-                    pipe.space -= 5
+                    for pipe_2 in self.pipes:
+                        pipe_2.space -= 5
 
                 pipe.passed = True
 
