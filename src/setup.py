@@ -470,16 +470,22 @@ class Setup:
             pygame.display.update()
             self.clock.tick(60)
 
-        if games[0].end_game or games[1].end_game:
-            self.lose_duo(games)
+        if games[0].end_game:
+            self.lose_duo(games, games[1].username)
+        elif games[1].end_game:
+            self.lose_duo(games, games[0].username)
 
-    def lose_duo(self, games: list):
+    def lose_duo(self, games: list, winner: str):
         """
         Make the game stop and ask players if they want to start again or go to the menu.
+        :param winner: name of winner
         :param games: list of PlayGame objects initialized
         """
-        rectBoom = images["boom"].get_rect()
-        rectBoom.center = (self.screenW / 2, 350)
+
+        string = "Player {} wins!".format(winner)
+        text_font = pygame.font.Font(font["bradbunr"], 100)
+        textWinner, textWinnerRect = createTextObj(string, text_font)
+        textWinnerRect.center = self.screenW / 2, 350
 
         rectStart_again = images["start_again"].get_rect()
         rectStart_again.center = (self.screenW / 2, 500)
@@ -492,11 +498,12 @@ class Setup:
 
         self.screen.blit(images["alien"], rectAlien)
         self.screen.blit(images["menu"], rectMenu)
-        self.screen.blit(images["boom"], rectBoom)
+        self.screen.blit(textWinner, textWinnerRect)
         self.screen.blit(images["start_again"], rectStart_again)
 
         pygame.display.update()
         sounds["crash"].play()
+        pygame.time.wait(1000)
 
         for game in games:
             game.reset()
