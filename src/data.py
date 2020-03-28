@@ -46,15 +46,15 @@ spriteShipFall = [pygame.image.load("src/assets/shipFall/1.png").convert_alpha()
 font = {"bradbunr": "src/assets/BradBunR.ttf"}
 
 
-def createTextObj(text, font):
+def createTextObj(text: str, font_object: pygame.font.Font):
     """
     Creates a text object with a string and a font
-    :type font: pygame.font.Font(font_name, 75)
+    :type font_object: pygame.font.Font(font_name, 75)
     :param text: string to display
-    :param font: font in which to display text
+    :param font_object: font in which to display text
     :return: a surface with the text and its rect
     """
-    textSurface = font.render(text, True, colors["white"])
+    textSurface = font_object.render(text, True, colors["white"])
     return textSurface, textSurface.get_rect()
 
 

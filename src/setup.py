@@ -3,27 +3,35 @@ import pickle
 
 import lib.pygame_functions as pg_functions
 from src.data import *
-from src.play_game import Play_game
+from src.playgame import PlayGame
 
 
-class Backbone:
-    screenW = SCREEN_WIDTH
-    screenH = SCREEN_HEIGHT
+class Setup:
+    """
+    Setup class is the backbone of the game, it creates objects and launches menu and games.
+    """
+    screenW, screenH = SCREEN_WIDTH, SCREEN_HEIGHT
     pg_functions.screenSize(screenW, screenW)
     end_game = False
     clock = pygame.time.Clock()
     all_scores = dict()
 
     def __init__(self):
+        """
+        __init__(self): initialize pygame and window
+        """
         self.all_scores = self.getScore()
         pygame.init()
-        os.environ['SDL_VIDEO_CENTERED'] = '1'
+        os.environ['SDL_VIDEO_CENTERED'] = '1'  # make game window appears in the middle of the screen
         self.screen = pygame.display.set_mode((self.screenW, self.screenH))
         pygame.display.set_caption("FlapUFO")
         pygame.display.set_icon(images["icon"])
         pygame.mixer.music.play(-1, 25.3)
 
     def highScoreMenu(self):
+        """
+        Display 3 best scores contained in score file.
+        """
         sorted_scores = sorted(self.all_scores.items(), key=lambda t: t[1], reverse=True)
 
         first = ["", 0]
@@ -81,6 +89,9 @@ class Backbone:
         quit()
 
     def menu(self):
+        """
+        General menu of the game, we can chose 1 player mode, 2 players mode of see the high scores.
+        """
 
         rectLogo = images["logo"].get_rect()
         rectLogo.center = (self.screenW / 2, rectLogo.height / 2)
@@ -122,6 +133,10 @@ class Backbone:
         quit()
 
     def getScore(self):
+        """
+        Extract score dictionary from score file.
+        :return: a dictionary with scores in it
+        """
         if os.path.exists(name_score_file):
             with open(name_score_file, 'rb') as file:
                 score_obj = pickle.Unpickler(file)
@@ -131,11 +146,18 @@ class Backbone:
         return scores
 
     def saveScore(self):
+        """
+        Save dictionary of score in score file.
+        """
         with open(name_score_file, 'wb') as file:
             score_obj = pickle.Pickler(file)
             score_obj.dump(self.all_scores)
 
-    def startGame_solo(self, game):
+    def startGame_solo(self, game: PlayGame):
+        """
+        Start a game for one player, the score will be saved in the score file if the player's high score is beaten.
+        :param game: PlayGame object already initialized
+        """
         if game.username not in self.all_scores.keys():
             self.all_scores[game.username] = 0
 
@@ -170,7 +192,11 @@ class Backbone:
         if game.end_game:
             self.lose_solo(game)
 
-    def lose_solo(self, game):
+    def lose_solo(self, game: PlayGame):
+        """
+        Make the game stop and ask the player if he wants to start again or go to the menu.
+        :param game: PlayGame object already initialized
+        """
         rectBoom = images["boom"].get_rect()
         rectBoom.center = (self.screenW / 2, 350)
 
@@ -217,6 +243,10 @@ class Backbone:
                     end_lose_menu = True
 
     def enterName_solo(self):
+        """
+        Display a window to create a PlayGame object, the user has to fill the text box with his username.
+        When PlayGame object is created, this method will call waitBeforeStart_solo().
+        """
         endName = False
 
         text_name = pygame.font.Font(font["bradbunr"], 40)
@@ -235,7 +265,7 @@ class Backbone:
         username = pg_functions.textBoxInput(wordBox).upper()
         pygame.display.update()
 
-        game = Play_game(self.screen, username, solo=True, is_left=True)
+        game = PlayGame(self.screen, username=username, solo=True, is_left=True)
 
         while not endName:
             for event in pygame.event.get():
@@ -249,7 +279,11 @@ class Backbone:
         pygame.quit()
         quit()
 
-    def waitBeforeStart_solo(self, game):
+    def waitBeforeStart_solo(self, game: PlayGame):
+        """
+        Window to show before starting a game to make sure the user is ready and he knows how to play.
+        :param game: PlayGame object already initialized
+        """
         startGame = False
 
         text_one = pygame.font.Font(font["bradbunr"], 60)
@@ -294,8 +328,12 @@ class Backbone:
                         self.startGame_solo(game)
 
     def enterName_duo(self):
-        games = [Play_game(self.screen, None, solo=False, is_left=True),
-                 Play_game(self.screen, None, solo=False, is_left=False)]
+        """
+        Display a window to create 2 PlayGame objects, users have to fill text boxes with their usernames.
+        When PlayGame objects are created, this method will call waitBeforeStart_duo().
+        """
+        games = [PlayGame(self.screen, username=None, solo=False, is_left=True),
+                 PlayGame(self.screen, username=None, solo=False, is_left=False)]
 
         text_name = pygame.font.Font(font["bradbunr"], 40)
         textSurface_name1, textRect_name1 = createTextObj("Player 1 name", text_name)
@@ -341,7 +379,11 @@ class Backbone:
         if endName1 and endName2:
             self.waitBeforeStart_duo(games)
 
-    def waitBeforeStart_duo(self, games):
+    def waitBeforeStart_duo(self, games: list):
+        """
+        Window to show before starting a game to make sure users are ready and know how to play.
+        :param games: list of initialized PlayGame objects
+        """
         startGame = False
         player1_ready = False
         player2_ready = False
@@ -404,7 +446,11 @@ class Backbone:
                 startGame = True
                 self.startGame_duo(games)
 
-    def startGame_duo(self, games):
+    def startGame_duo(self, games: list):
+        """
+        Start a game for two players
+        :param games: list of 2 PlayGame objects already initialized
+        """
         while not (games[0].end_game or games[1].end_game):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -417,11 +463,9 @@ class Backbone:
                         if event.key == game.jump_key:
                             game.ship.jump()
 
-            games[0].update()
-            games[1].update()
-
-            games[0].draw()
-            games[1].draw()
+            for game in games:
+                game.update()
+                game.draw()
 
             pygame.display.update()
             self.clock.tick(60)
@@ -429,7 +473,11 @@ class Backbone:
         if games[0].end_game or games[1].end_game:
             self.lose_duo(games)
 
-    def lose_duo(self, games):
+    def lose_duo(self, games: list):
+        """
+        Make the game stop and ask players if they want to start again or go to the menu.
+        :param games: list of PlayGame objects initialized
+        """
         rectBoom = images["boom"].get_rect()
         rectBoom.center = (self.screenW / 2, 350)
 

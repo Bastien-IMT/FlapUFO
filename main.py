@@ -1,4 +1,5 @@
-from src.backbone import *
+from src.setup import *
 
-game = Backbone()
-game.menu()
+if __name__ == "__main__":
+    game = Setup()
+    game.menu()
