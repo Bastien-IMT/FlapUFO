@@ -71,7 +71,7 @@ class PlayGame:
 
         if not self.solo:
             x_rect_split = self.game_window_width if self.is_left else 0
-            pygame.draw.rect(self.game_window, colors["black"], (x_rect_split, 0, 4, self.game_window_height))
+            pygame.draw.rect(self.game_window, colors["black"], (x_rect_split, 0, 3, self.game_window_height))
 
     def update(self):
         """
