@@ -36,14 +36,13 @@ class PlayGame:
         self.rect = self.screen.get_rect(left=0 if is_left else self.screenWidth / 2)
 
         # creating game objects
-        self.ship = Ship(self.game_window, solo=solo, is_left=is_left)
-        self.pipes = []
+        self.ship = Ship(self)
+        self.all_pipes = pygame.sprite.Group()
         self.pipes_number = 2 if solo else 1
         for i in range(0, self.pipes_number):
-            self.pipes.append(
-                Pipes(self.game_window, first=True if (i == 0) else False, single_player=solo, is_left=is_left))
-        self.bg = Background(self.game_window, is_left=is_left)
-        self.hourglass = Hourglass(self.game_window)
+            self.all_pipes.add(Pipes(self, first=True if (i == 0) else False))
+        self.bg = Background(self)
+        self.hourglass = Hourglass(self)
 
         # control settings
         if is_left:
@@ -59,7 +58,7 @@ class PlayGame:
 
         self.bg.draw()
         self.ship.draw()
-        for pipe in self.pipes:
+        for pipe in self.all_pipes:
             pipe.draw()
         self.hourglass.draw()
 
@@ -84,17 +83,17 @@ class PlayGame:
         if not self.ship.goForward:
             self.bg.move()
             self.hourglass.move()
-            for pipe in self.pipes:
+            for pipe in self.all_pipes:
                 pipe.move()
 
         self.updateScore()
 
-        if self.ship.collision_pipes(self.pipes):
+        if self.ship.collision_pipes():
             self.end_game = True
         if self.ship.collision_hourglass(self.hourglass):
             sounds["slow"].play()
             self.hourglass.updateCoordinates()
-            for pipe in self.pipes:
+            for pipe in self.all_pipes:
                 pipe.velocity = pipe.origin_velocity
             self.bg.velocity = self.bg.origin_velocity
             self.hourglass.x_velocity = self.hourglass.origin_x_velocity
@@ -102,14 +101,14 @@ class PlayGame:
     def updateScore(self):
         """
         Checks if ship passed current pipe without colliding it and add 1 point if it's the case.
-        It also increase objects velocity and reduce space between top and bottom pipes.
+        It also increase objects velocity and reduce space between top and bottom all_pipes.
         """
-        for pipe in self.pipes:
+        for pipe in self.all_pipes:
             if self.ship.x_pos > pipe.x_pos and not pipe.passed:
                 self.ship.score += 1
                 sounds["score"].play()
                 if pipe.velocity < 13:
-                    for pipe_2 in self.pipes:
+                    for pipe_2 in self.all_pipes:
                         pipe_2.velocity += 0.5
                     self.hourglass.x_velocity += 0.5
 
@@ -117,7 +116,7 @@ class PlayGame:
                     self.bg.velocity += 0.2
 
                 if pipe.space > 230 and self.ship.score % 2 != 0:
-                    for pipe_2 in self.pipes:
+                    for pipe_2 in self.all_pipes:
                         pipe_2.space -= 5
 
                 pipe.passed = True
@@ -133,5 +132,5 @@ class PlayGame:
         self.ship.reset()
         self.bg.reset()
         self.hourglass.reset()
-        for pipe in self.pipes:
+        for pipe in self.all_pipes:
             pipe.reset()

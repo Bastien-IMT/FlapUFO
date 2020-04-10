@@ -20,6 +20,7 @@ class Setup:
         """
         Initialize pygame and window
         """
+
         self.all_scores = self.getScore()
         pygame.init()
         os.environ['SDL_VIDEO_CENTERED'] = '1'  # make game window appears in the middle of the screen

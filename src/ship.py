@@ -3,29 +3,30 @@ from src.gameobject import GameObject
 from src.hourglass import Hourglass
 
 
-class Ship(GameObject):
+class Ship(GameObject, pygame.sprite.Sprite):
     """
     Class that defines the character of the game (UFO ship).
     """
     origin_x_velocity = 4
     origin_y_velocity = -10
 
-    def __init__(self, screen: pygame.Surface, solo: bool = True, is_left: bool = True):
+    def __init__(self, PlayGame):
         """
         Initialize the object.
-        :param screen: pygame surface to display ship
-        :param solo: True if solo mode False if duo mode
-        :param is_left: True if screen left else false
+        :param PlayGame : PlaGame object
         """
 
+        super().__init__()
+
         # display settings
-        self.screen = screen
+        self.game = PlayGame
+        self.screen = PlayGame.game_window
         self.screenHeight = self.screen.get_rect().size[1]
         self.image = images["ship"]
         self.rect = self.image.get_rect()
         self.width, self.height = self.rect.size
-        self.spriteJump = spriteShipJump1 if is_left else spriteShipJump2
-        self.spriteFall = spriteShipFall1 if is_left else spriteShipFall2
+        self.spriteJump = spriteShipJump1 if self.game.is_left else spriteShipJump2
+        self.spriteFall = spriteShipFall1 if self.game.is_left else spriteShipFall2
 
         # position settings
         self.x_pos = -self.width
@@ -41,7 +42,7 @@ class Ship(GameObject):
         self.score = 0
         self.spriteCount = 0
         self.goForward = True
-        self.final_pos_x = 150 if solo else 75
+        self.final_pos_x = 150 if self.game.solo else 75
 
     def draw(self):
         """
@@ -85,14 +86,13 @@ class Ship(GameObject):
             self.y_velocity = -13.5
             sounds["jump"].play()
 
-    def collision_pipes(self, pipes_list: list):
+    def collision_pipes(self):
         """
         Checks if ship collides with a pipe.
-        :param pipes_list: all pipes on the game window
         :return: True or False
         """
         result = False
-        for pipe in pipes_list:
+        for pipe in self.game.all_pipes:
             if self.x_pos + self.width > pipe.x_pos and self.x_pos < pipe.x_pos + pipe.width:
                 if self.y_pos < pipe.y_pos_up + pipe.height:  # collide with top
                     result = True

@@ -91,3 +91,7 @@ colors = {"black": (0, 0, 0), "darkgray": (70, 70, 70), "gray": (128, 128, 128),
 
 # score
 name_score_file = "src/assets/scores"
+
+
+def check_collision(sprite, group):
+    return pygame.sprite.spritecollide(sprite, group, dokill=False, collided=pygame.sprite.collide_mask)

@@ -2,24 +2,28 @@ from src.data import *
 from src.gameobject import GameObject
 
 
-class Background(GameObject):
+class Background(GameObject, pygame.sprite.Sprite):
     """
     Class that defines the moving background.
     """
     offset_y = -50
     origin_velocity = 0.7
 
-    def __init__(self, screen: pygame.Surface, is_left: bool = True):
+    def __init__(self, PlayGame):
         """
         Initialize object (1 game = Background object).
-        :param screen: surface to display background on
-        :param is_left: bool
+        :param PlayGame : PlayGame object
         """
+
+        super().__init__()
+
+        self.PlayGame = PlayGame
+
         # Display settings
-        self.image = images["bg_large"] if is_left else images["bg_large2"]
+        self.image = images["bg_large"] if self.PlayGame.is_left else images["bg_large2"]
         self.width = self.image.get_width()
         self.height = self.image.get_height()
-        self.screen = screen
+        self.screen = PlayGame.game_window
         self.screenHeight, self.screenWidth = self.screen.get_rect().size
 
         # Position settings

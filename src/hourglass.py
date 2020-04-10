@@ -4,23 +4,25 @@ from src.data import *
 from src.gameobject import GameObject
 
 
-class Hourglass(GameObject):
+class Hourglass(GameObject, pygame.sprite.Sprite):
     """
-    Class that defines the hourglass that reduce pipes and background speed if it's taken by ship.
+    Class that defines the hourglass that reduce all_pipes and background speed if it's taken by ship.
     """
 
     origin_x_velocity = 7.5
     direction = [-1, 1]
     origin_y_velocity = 1 * choice(direction)
 
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, PlayGame):
         """
         Initialize Hourglass object.
-        :param screen: surface to display hourglass on
+        :param PlayGame : PlayGame object
         """
 
+        super().__init__()
+
         # Display settings
-        self.screen = screen
+        self.screen = PlayGame.game_window
         self.screenWidth, self.screenHeight = self.screen.get_rect().size
         self.image = images["clock"]
         self.rect = self.image.get_rect()
