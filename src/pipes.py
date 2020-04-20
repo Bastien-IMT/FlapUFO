@@ -2,6 +2,7 @@ from random import randint
 
 from src.data import *
 from src.gameobject import GameObject
+from src.ship import Ship
 
 
 class Pipes(GameObject, pygame.sprite.Sprite):
@@ -88,3 +89,24 @@ class Pipes(GameObject, pygame.sprite.Sprite):
         self.y_pos_up = randint(self.max_pos, self.min_pos)
         self.y_pos_down = self.y_pos_up + self.height + self.space
         self.passed = False
+
+    def collide_with_ship(self, ship: Ship):
+        """
+        Check if ship collide with top of bottom pipe
+        :param ship: Ship object (initialized)
+        :return: Boolean, True of collision
+        """
+        ship_mask = ship.get_mask()
+        top_mask = pygame.mask.from_surface(self.image["up"])
+        bottom_mask = pygame.mask.from_surface(self.image["down"])
+
+        top_offset = round(self.x_pos - ship.x_pos), round(self.y_pos_up - round(ship.y_pos))
+        bottom_offset = round(self.x_pos - ship.x_pos), round(self.y_pos_down - round(ship.y_pos))
+
+        b_point = ship_mask.overlap(bottom_mask, bottom_offset)
+        t_point = ship_mask.overlap(top_mask, top_offset)
+
+        if t_point or b_point:
+            return True
+
+        return False

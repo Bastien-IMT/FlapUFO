@@ -131,3 +131,6 @@ class Ship(GameObject, pygame.sprite.Sprite):
         self.score = 0
         self.spriteCount = 0
         self.goForward = True
+
+    def get_mask(self):
+        return pygame.mask.from_surface(images["ship"])

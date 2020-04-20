@@ -88,8 +88,13 @@ class PlayGame:
 
         self.updateScore()
 
-        if self.ship.collision_pipes():
-            self.end_game = True
+        # if self.ship.collision_pipes():
+        #     self.end_game = True
+
+        for pipe in self.all_pipes:
+            if pipe.collide_with_ship(self.ship):
+                self.end_game = True
+
         if self.ship.collision_hourglass(self.hourglass):
             sounds["slow"].play()
             self.hourglass.updateCoordinates()
